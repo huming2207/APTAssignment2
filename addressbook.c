@@ -10,7 +10,6 @@
 
 int main(int argc, char ** argv)
 {
-    printf("> Goodbye. \n\n");
-
+    printf(studentInfo);
     return EXIT_SUCCESS;
 }
