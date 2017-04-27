@@ -10,6 +10,6 @@
 
 int main(int argc, char ** argv)
 {
-    printf(studentInfo);
+    printf("%s", studentInfo);
     return EXIT_SUCCESS;
 }
