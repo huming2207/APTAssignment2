@@ -17,7 +17,14 @@ AddressBookList * createAddressBookList()
     * Note head, tail and current should all be initialised to NULL.
     */
 
-    return NULL;
+    AddressBookList * addressBookList = malloc(sizeof(*addressBookList));
+
+    addressBookList->size = 0;
+    addressBookList->current = NULL;
+    addressBookList->head = NULL;
+    addressBookList->tail = NULL;
+
+    return addressBookList;
 }
 
 void freeAddressBookList(AddressBookList * list)
@@ -27,6 +34,15 @@ void freeAddressBookList(AddressBookList * list)
      * 
      * Note the freeAddressBookNode(...) function is used to free a node.
      */
+
+    // Free up each node
+    freeAddressBookNode(list->tail);
+    freeAddressBookNode(list->head);
+    freeAddressBookNode(list->current);
+
+    // Wipe up itself
+    free(list);
+
 }
 
 AddressBookNode * createAddressBookNode(int id, char * name)
@@ -44,7 +60,16 @@ AddressBookNode * createAddressBookNode(int id, char * name)
     * Note previousNode and nextNode should both be initialised to NULL.
     */
 
-    return NULL;
+    // Create an address book node
+    AddressBookNode * addressBookNode = malloc(sizeof(*addressBookNode));
+
+    // Assign some values to it
+    addressBookNode->array = NULL;
+    addressBookNode->id = id;
+    addressBookNode->nextNode = NULL;
+    addressBookNode->previousNode = NULL;
+
+    return addressBookNode;
 }
 
 void freeAddressBookNode(AddressBookNode * node)
@@ -54,6 +79,44 @@ void freeAddressBookNode(AddressBookNode * node)
     * 
     * Note the freeAddressBookArray(...) function is used to free the array.
     */
+
+    // Free up the array
+    freeAddressBookArray(node->array);
+
+    // Clean up the address book node
+    AddressBookNode * addressBookNodeNext = node->nextNode;
+    AddressBookNode * addressBookNodePrevious = node->previousNode;
+
+    // Wipe up all those nodes which in this one's FRONT position
+    while(addressBookNodeNext != NULL)
+    {
+        // Selects current node and wait to clean
+        AddressBookNode * currentNode = addressBookNodeNext;
+
+        // Set the node position to the next one of itself ("next's next" lol)
+        addressBookNodeNext = addressBookNodeNext->nextNode;
+
+        // Then clean the current one
+        freeAddressBookArray(node->array);
+        free(currentNode);
+    }
+
+    // Wipe up all those nodes which in this one's BACK position
+    while(addressBookNodePrevious != NULL)
+    {
+        // Selects previous node and wait to clean
+        AddressBookNode * previousNode = addressBookNodePrevious;
+
+        // Set the node position to the previous one of itself ("previous's previous" lol)
+        addressBookNodePrevious = addressBookNodePrevious->previousNode;
+
+        // Then clean the current one
+        freeAddressBookArray(node->array);
+        free(previousNode);
+    }
+
+    // Finally, clean up itself
+    free(node);
 }
 
 Boolean insertNode(AddressBookList * list, AddressBookNode * node)

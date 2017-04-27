@@ -12,9 +12,11 @@ typedef struct addressBookArray
 } AddressBookArray;
 
 AddressBookArray * createAddressBookArray();
+
 void freeAddressBookArray(AddressBookArray * array);
 
 Boolean addTelephone(AddressBookArray * array, char * telephone);
+
 Boolean removeTelephone(AddressBookArray * array, char * telephone);
 
 char * findTelephone(AddressBookArray * array, char * telephone);

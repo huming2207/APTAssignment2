@@ -17,7 +17,14 @@ AddressBookArray * createAddressBookArray()
      * Note telephones should be initialised to NULL.
      */
 
-    return NULL;
+    // Allocate a memory area
+    AddressBookArray * addressBookArray = malloc(sizeof(*addressBookArray));
+
+    // Assign some empty stuff
+    addressBookArray->telephones = NULL;
+    addressBookArray->size = 0;
+
+    return addressBookArray;
 }
 
 void freeAddressBookArray(AddressBookArray * array)
@@ -25,6 +32,23 @@ void freeAddressBookArray(AddressBookArray * array)
     /**
      * Free's all telephones within the array and the AddressBookArray itself.
      */
+
+    /* Declare the telephone detail nodes */
+    char ** telephoneNodes = array->telephones;
+    int nodeIndex;
+
+    /* Do a for-loop to wipe the memory for the inner contents of node array ("char*" strings); */
+    for(nodeIndex = 0; nodeIndex < array->size; nodeIndex++)
+    {
+        free(telephoneNodes[nodeIndex]);
+    }
+
+    /* ...then wipe the telephone array; */
+    free(telephoneNodes);
+
+    /* ...finally, wipe the array itself. */
+    free(array);
+
 }
 
 Boolean addTelephone(AddressBookArray * array, char * telephone)
