@@ -139,31 +139,33 @@ Boolean removeTelephone(AddressBookArray * array, char * telephone)
     * array->telephones = NULL;
     */
 
-    int search_index;
+    /** Do a search first... */
+    char * telephone_found = findTelephone(array, telephone);
 
-    for(search_index = 0; search_index < array->size; search_index++)
+    /** Remove the telephone string pointer only if it has been found */
+    if(telephone_found != NULL)
     {
-        /** If the string matches, do the removal */
-        if(strcmp(array->telephones[search_index], telephone) == 0)
+        /** Remove the telephone string pointer */
+        safe_free(telephone_found);
+
+        /** Shrink the whole telephone list index */
+        array->size--;
+
+        /** Shrink the whole telephone list */
+        array->telephones = realloc(array->telephones, sizeof(*array->telephones) * (array->size));
+
+        /** If the array size is 0 (empty array), do the whole removal of the array, dispose it. */
+        if(array->size == 0)
         {
-            /** Remove the telephone string */
-            safe_free(array->telephones[search_index]);
-
-            /** Shrink the whole telephone list index */
-            array->size--;
-
-            /** Shrink the whole telephone list */
-            array->telephones = realloc(array->telephones, sizeof(*array->telephones) * (array->size));
+            safe_free(array->telephones);
         }
-    }
 
-    /** If the array size is 0 (empty array), do the whole removal of the array, dispose it. */
-    if(array->size == 0)
+        return TRUE;
+    }
+    else
     {
-
+        return FALSE;
     }
-
-    return FALSE;
 }
 
 char * findTelephone(AddressBookArray * array, char * telephone)
@@ -173,6 +175,17 @@ char * findTelephone(AddressBookArray * array, char * telephone)
      * 
      * If no telephone exists then NULL is returned.
      */
+
+    int search_index;
+
+    for(search_index = 0; search_index < array->size; search_index++)
+    {
+        /** If the string matches, do the removal */
+        if(strcmp(array->telephones[search_index], telephone) == 0)
+        {
+            return array->telephones[search_index];
+        }
+    }
 
     return NULL;
 }
