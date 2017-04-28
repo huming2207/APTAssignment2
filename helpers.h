@@ -30,4 +30,9 @@ typedef enum boolean
  **/
 void readRestOfLine();
 
+/**
+ * Do a safe delete
+ * */
+void safe_free(void * ptr);
+
 #endif

@@ -41,7 +41,7 @@ void freeAddressBookList(AddressBookList * list)
     freeAddressBookNode(list->current);
 
     // Wipe up itself
-    free(list);
+    safe_free(list);
 
 }
 
@@ -98,7 +98,7 @@ void freeAddressBookNode(AddressBookNode * node)
 
         // Then clean the current one
         freeAddressBookArray(node->array);
-        free(currentNode);
+        safe_free(currentNode);
     }
 
     // Wipe up all those nodes which in this one's BACK position
@@ -112,11 +112,11 @@ void freeAddressBookNode(AddressBookNode * node)
 
         // Then clean the current one
         freeAddressBookArray(node->array);
-        free(previousNode);
+        safe_free(previousNode);
     }
 
     // Finally, clean up itself
-    free(node);
+    safe_free(node);
 }
 
 Boolean insertNode(AddressBookList * list, AddressBookNode * node)

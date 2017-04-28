@@ -17,10 +17,10 @@ AddressBookArray * createAddressBookArray()
      * Note telephones should be initialised to NULL.
      */
 
-    // Allocate a memory area
+    /** Allocate a memory area */
     AddressBookArray * addressBookArray = malloc(sizeof(*addressBookArray));
 
-    // Assign some empty stuff
+    /** Assign some empty stuff */
     addressBookArray->telephones = NULL;
     addressBookArray->size = 0;
 
@@ -33,21 +33,21 @@ void freeAddressBookArray(AddressBookArray * array)
      * Free's all telephones within the array and the AddressBookArray itself.
      */
 
-    /* Declare the telephone detail nodes */
+    /** Declare the telephone detail nodes */
     char ** telephoneNodes = array->telephones;
     int nodeIndex;
 
-    /* Do a for-loop to wipe the memory for the inner contents of node array ("char*" strings); */
+    /** Do a for-loop to wipe the memory for the inner contents of node array ("char*" strings); */
     for(nodeIndex = 0; nodeIndex < array->size; nodeIndex++)
     {
-        free(telephoneNodes[nodeIndex]);
+        safe_free(telephoneNodes[nodeIndex]);
     }
 
-    /* ...then wipe the telephone array; */
-    free(telephoneNodes);
+    /** ...then wipe the telephone array; */
+    safe_free(telephoneNodes);
 
-    /* ...finally, wipe the array itself. */
-    free(array);
+    /** ...finally, wipe the array itself. */
+    safe_free(array);
 
 }
 
@@ -79,7 +79,36 @@ Boolean addTelephone(AddressBookArray * array, char * telephone)
      * array->size++;
      */
 
-    return FALSE;
+    /** Allocate memory for new telephone chars */
+    char * new_phone = malloc(TELEPHONE_LENGTH);
+
+    /** Detect if memory allocation works or not, if not, return FALSE */
+    if(new_phone != NULL)
+    {
+        strcpy(new_phone, telephone);
+    }
+    else
+    {
+        return FALSE;
+    }
+
+    /** Expand the phone array index */
+    array->size++;
+
+    /** Expand the list itself */
+    array->telephones = realloc(array->telephones, sizeof(*array->telephones) * (array->size));
+
+    /** Detect if memory reallocation works or not, if not, return FALSE */
+    if(array->telephones != NULL)
+    {
+        array->telephones[array->size - 1] = new_phone;
+    }
+    else
+    {
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 Boolean removeTelephone(AddressBookArray * array, char * telephone)
@@ -101,14 +130,38 @@ Boolean removeTelephone(AddressBookArray * array, char * telephone)
     * Note for this to work you will first have to ensure the telephone
     * to remove is at the end of the array.
     * 
-    * Also note you will need to free(...) the removed telephone as well.
+    * Also note you will need to safe_free(...) the removed telephone as well.
     * 
     * If you are removing the LAST telephone in the array then you will need to
     * free telephones itself and set it to NULL. Here is some sample code:
     * 
-    * free(array->telephones);
+    * safe_free(array->telephones);
     * array->telephones = NULL;
     */
+
+    int search_index;
+
+    for(search_index = 0; search_index < array->size; search_index++)
+    {
+        /** If the string matches, do the removal */
+        if(strcmp(array->telephones[search_index], telephone) == 0)
+        {
+            /** Remove the telephone string */
+            safe_free(array->telephones[search_index]);
+
+            /** Shrink the whole telephone list index */
+            array->size--;
+
+            /** Shrink the whole telephone list */
+            array->telephones = realloc(array->telephones, sizeof(*array->telephones) * (array->size));
+        }
+    }
+
+    /** If the array size is 0 (empty array), do the whole removal of the array, dispose it. */
+    if(array->size == 0)
+    {
+
+    }
 
     return FALSE;
 }
