@@ -53,6 +53,8 @@ void parse_menu(char * user_input, AddressBookList * list);
 
 InsertInfo parse_insert(char * insert_info);
 
-Boolean clear_extra_input(char * split_token);
+Boolean count_space(char * user_input, int desired_spaces);
+
+char * parse_second_arg(char * split_token);
 
 #endif

@@ -359,5 +359,6 @@ AddressBookNode *findByName(AddressBookList *list, char *name)
         }
     }
 
+    /** When there IS NOTHING, return NULL */
     return NULL;
 }

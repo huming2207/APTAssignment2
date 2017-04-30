@@ -94,8 +94,30 @@ char * get_user_input(int length)
     /** Do fgets to grab input */
     fgets(user_input, length, stdin);
 
+    /** If it's not ended with new line character, then it must be overflowed */
+    if(user_input[strlen(user_input) - 1] != '\n')
+    {
+        return NULL;
+    }
+
     /** Append a null character */
     strcat(user_input, "\0");
 
     return user_input;
+}
+
+int str_to_int(char * str)
+{
+    /** Get (only) the first int found from str */
+    long num = strtol(str, NULL, 10);
+
+    /** Return int, detect overflow before conversion */
+    if(num > INT_MIN && num < INT_MAX)
+    {
+        return ((int)num);
+    }
+    else
+    {
+        return -32767;
+    }
 }

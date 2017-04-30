@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <assert.h>
+#include <limits.h>
 
 typedef enum boolean
 {
@@ -51,5 +52,10 @@ char * append_string(char * old_str, char * append_str);
  * Get user's input string
  */
 char * get_user_input(int length);
+
+/**
+ * Converting string to int
+ */
+int str_to_int(char * str);
 
 #endif
