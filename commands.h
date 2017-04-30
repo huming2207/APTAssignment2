@@ -3,6 +3,14 @@
 
 #include "addressbook_list.h"
 
+typedef struct insert_info
+{
+    int id;
+    char * name;
+    char * telephone;
+
+} InsertInfo;
+
 #define MAX_LINE_LENGTH 512
 
 #define COMMAND_LOAD "load"
@@ -37,5 +45,14 @@ void commandSort(
 int compareName(const void * node, const void * otherNode);
 int compareID(const void * node, const void * otherNode);
 void commandSave(AddressBookList * list, char * fileName);
+
+/**
+ * Parse the user input command for main menu
+ */
+void parse_menu(char * user_input, AddressBookList * list);
+
+InsertInfo parse_insert(char * insert_info);
+
+Boolean clear_extra_input(char * split_token);
 
 #endif

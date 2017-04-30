@@ -13,3 +13,8 @@ int main(int argc, char ** argv)
     printf("%s", studentInfo);
     return EXIT_SUCCESS;
 }
+
+void main_loop()
+{
+
+}

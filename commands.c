@@ -78,3 +78,45 @@ int compareID(const void * node, const void * otherNode)
 
 void commandSave(AddressBookList * list, char * fileName)
 { }
+
+
+void parse_menu(char * user_input, AddressBookList * list)
+{
+    /** These are all some hard-coded if-elses, very long and dull lol */
+
+    /** Prepare a string array to get the string token */
+    char * split_token = strtok(user_input, " ");
+
+    /** Parse load */
+    if(strcmp(&split_token[0], COMMAND_LOAD) == 0)
+    {
+        while(split_token != NULL)
+        {
+            split_token = strtok(NULL, " ");
+
+            if(strlen(&split_token[0]) > 1)
+            {
+                list = commandLoad(&split_token[0]);
+            }
+            else
+            {
+                printf("\n> Invalid input.\n");
+            }
+        }
+    }
+
+    /** Parse unload */
+    if(strcmp(&split_token[0], COMMAND_UNLOAD) == 0)
+    {
+
+    }
+
+}
+
+Boolean clear_extra_input(char * split_token)
+{
+    if(split_token != NULL)
+    {
+        printf("\n> Invalid input.\n");
+    }
+}
