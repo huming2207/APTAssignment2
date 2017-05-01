@@ -3,14 +3,6 @@
 
 #include "addressbook_list.h"
 
-typedef struct insert_info
-{
-    int id;
-    char * name;
-    char * telephone;
-
-} InsertInfo;
-
 #define MAX_LINE_LENGTH 512
 
 #define COMMAND_LOAD "load"
@@ -51,10 +43,10 @@ void commandSave(AddressBookList * list, char * fileName);
  */
 void parse_menu(char * user_input, AddressBookList * list);
 
-InsertInfo parse_insert(char * insert_info);
-
-Boolean count_space(char * user_input, int desired_spaces);
+Boolean count_space(char * user_input, int desired_spaces, int desired_commas);
 
 char * parse_second_arg(char * split_token);
+
+void parse_insert(AddressBookList * list, char * second_arg);
 
 #endif
