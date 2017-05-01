@@ -81,11 +81,11 @@ char * append_string(char * old_str, char * append_str)
 
 char * get_user_input(int length)
 {
-    printf("Enter your command: ");
-
     /** Initialize something (of course), cast to size_t because CLion warning sucks. */
     char * user_input;
     user_input = malloc((size_t)(length + EXTRA_SPACES));
+
+    printf("Enter your command: ");
 
     if(user_input == NULL)
     {
@@ -122,6 +122,12 @@ int str_to_int(char * str)
     }
     else
     {
+
         return -32767;
     }
+}
+
+void clean_user_input_buffer(char * user_input)
+{
+    safe_free(user_input);
 }

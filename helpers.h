@@ -54,6 +54,12 @@ char * append_string(char * old_str, char * append_str);
 char * get_user_input(int length);
 
 /**
+ * Clean the user input string memory buffer
+ * Just for in case of a memory leak, very different from readRestOfLine() function.
+ */
+void clean_user_input_buffer(char * user_input);
+
+/**
  * Converting string to int
  */
 int str_to_int(char * str);

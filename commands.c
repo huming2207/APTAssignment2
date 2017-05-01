@@ -5,6 +5,27 @@
  * meaning printf's are expected to be seen in this file.
  */
 
+void main_menu()
+{
+    /** Declare something useful... */
+    AddressBookList * list;
+    char * user_input;
+
+    /**
+     * 200 chars are quite enough for user input,
+     * and don't worry, it will be cleaned later.
+     *
+     * If user input something even longer than this, it will be prevented in get_user_input().
+     * */
+    user_input = get_user_input(200);
+
+    /** Parse all those commands */
+    parse_menu(user_input, list);
+
+    clean_user_input_buffer(user_input);
+
+}
+
 AddressBookList * commandLoad(char * fileName)
 {
     /**
@@ -25,7 +46,9 @@ void commandDisplay(AddressBookList * list)
 { }
 
 void commandForward(AddressBookList * list, int moves)
-{ }
+{
+    printf("Got %d moves\n", moves);
+}
 
 void commandBackward(AddressBookList * list, int moves)
 { }
@@ -80,12 +103,19 @@ void commandSave(AddressBookList * list, char * fileName)
 { }
 
 
+
 void parse_menu(char * user_input, AddressBookList * list)
 {
     /** These are all some hard-coded if-elses, very long and dull lol */
 
     /** Prepare a string array to get the string token */
-    char * split_token = strtok(user_input, " ");
+    char * split_token;
+
+    /** Duplicate the input string to token first, or user_input itself will be polluted by "strtok" */
+    split_token = malloc(sizeof(user_input));
+    strcpy(split_token, user_input);
+
+    split_token = strtok(split_token, " ");
 
     /** Parse load, takes 1 argument */
     if(strcmp(&split_token[0], COMMAND_LOAD) == 0 && count_space(user_input, 1, 0) == TRUE)
@@ -107,7 +137,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     }
 
     /** Parse forward, takes 1 argument */
-    else if(strcmp(&split_token[0], COMMAND_FORWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
+    else if(strcmp(split_token, COMMAND_FORWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(split_token));
         commandForward(list, step);
@@ -213,9 +243,10 @@ char * parse_second_arg(char * split_token)
         }
         else
         {
-            printf("\n> Invalid input.\n");
+            printf("> Invalid input.\n");
+            main_menu();
 
-            /* TODO: Better not just return null, should call back the input function and get the input again. */
+            /** For shutting up gcc only... */
             return NULL;
         }
     }

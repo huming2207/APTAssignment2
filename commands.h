@@ -38,6 +38,8 @@ int compareName(const void * node, const void * otherNode);
 int compareID(const void * node, const void * otherNode);
 void commandSave(AddressBookList * list, char * fileName);
 
+void main_menu();
+
 /**
  * Parse the user input command for main menu
  */

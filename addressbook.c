@@ -10,6 +10,7 @@
 
 int main(int argc, char ** argv)
 {
+    /** Yea actually... I did some printf as you required above, didn't I lol?! */
     const char * studentInfo =
             "\n\n-----------------------------------------------------------------\n"
                     "Student name: Ming Hu\n"
@@ -18,5 +19,7 @@ int main(int argc, char ** argv)
                     "-----------------------------------------------------------------\n\n";
 
     printf("%s", studentInfo);
+
+    main_menu();
     return EXIT_SUCCESS;
 }
