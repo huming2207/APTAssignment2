@@ -10,11 +10,13 @@
 
 int main(int argc, char ** argv)
 {
+    const char * studentInfo =
+            "\n\n-----------------------------------------------------------------\n"
+                    "Student name: Ming Hu\n"
+                    "Student number: 3554025\n"
+                    "Advanced Programming Techniques, Assignment Two, Semester 1, 2017\n"
+                    "-----------------------------------------------------------------\n\n";
+
     printf("%s", studentInfo);
     return EXIT_SUCCESS;
-}
-
-void main_loop()
-{
-
 }
