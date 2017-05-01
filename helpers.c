@@ -84,7 +84,8 @@ char * get_user_input(int length)
     printf("Enter your command: ");
 
     /** Initialize something (of course), cast to size_t because CLion warning sucks. */
-    char * user_input = malloc((size_t)(length + EXTRA_SPACES));
+    char * user_input;
+    user_input = malloc((size_t)(length + EXTRA_SPACES));
 
     if(user_input == NULL)
     {

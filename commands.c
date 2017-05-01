@@ -87,7 +87,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     /** Prepare a string array to get the string token */
     char * split_token = strtok(user_input, " ");
 
-    /** Parse load, 1 argument is allowed */
+    /** Parse load, takes 1 argument */
     if(strcmp(&split_token[0], COMMAND_LOAD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         /** Parse the second token (file path) and initialize the list */
@@ -106,14 +106,14 @@ void parse_menu(char * user_input, AddressBookList * list)
         commandDisplay(list);
     }
 
-    /** Parse forward, 1 argument is allowed */
+    /** Parse forward, takes 1 argument */
     else if(strcmp(&split_token[0], COMMAND_FORWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(split_token));
         commandForward(list, step);
     }
 
-    /** Parse backward, 1 argument is allowed */
+    /** Parse backward, takes 1 argument */
     else if(strcmp(&split_token[0], COMMAND_BACKWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(split_token));
@@ -126,7 +126,35 @@ void parse_menu(char * user_input, AddressBookList * list)
         parse_insert(list, parse_second_arg(split_token));
     }
 
-    /** Parse  */
+    /** Parse add, takes 1 argument  */
+    else if(strcmp(&split_token[0], COMMAND_ADD) == 0 && count_space(user_input, 1, 0) == TRUE)
+    {
+        commandAdd(list, parse_second_arg(split_token));
+    }
+
+    /** Parse find, takes 1 argument */
+    else if(strcmp(&split_token[0], COMMAND_FIND) == 0 && count_space(user_input, 1, 0) == TRUE)
+    {
+        commandFind(list, parse_second_arg(split_token));
+    }
+
+    /** Parse delete, no argument is allowed */
+    else if(strcmp(&split_token[0], COMMAND_DELETE) == 0 && count_space(user_input, 0, 0) == TRUE)
+    {
+        commandDelete(list);
+    }
+
+    /** Parse remove, takes 1 argument */
+    else if(strcmp(&split_token[0], COMMAND_REMOVE) == 0 && count_space(user_input, 1, 0) == TRUE)
+    {
+        commandRemove(list, parse_second_arg(split_token));
+    }
+
+    /** For the else things, it must be WRONG, return error message then... */
+    else
+    {
+        printf("\n> Invalid input! \n");
+    }
 }
 
 Boolean count_space(char * user_input, int desired_spaces, int desired_commas)
@@ -191,6 +219,9 @@ char * parse_second_arg(char * split_token)
             return NULL;
         }
     }
+
+    /** Nothing but just shut up the compiler */
+    return NULL;
 }
 
 void parse_insert(AddressBookList * list, char * second_arg)
@@ -239,6 +270,10 @@ void parse_insert(AddressBookList * list, char * second_arg)
     if(contact_name != NULL && id  > 0 && phone_array_str != NULL)
     {
         commandInsert(list, id, contact_name, phone_array_str);
+    }
+    else
+    {
+
     }
 
 }
