@@ -202,6 +202,7 @@ void commandInsert(AddressBookList * list, int id, char * name, char * telephone
         /** Add a phone number into it. */
         addTelephone(node->array, telephone);
         insertNode(list, node);
+        printf("> Insertion complete.\n");
     }
     else
     {
@@ -535,7 +536,6 @@ void parse_insert(AddressBookList * list, char * second_arg)
     {
         for(phone_append_index = 3; phone_append_index <= comma_count; phone_append_index++)
         {
-            printf("%s ", parse_result[phone_append_index]);
             if(parse_result[phone_append_index] != NULL)
             {
                 phone_newline_remove_token = strtok(parse_result[phone_append_index], "\n");
