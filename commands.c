@@ -101,7 +101,7 @@ void commandDisplay(AddressBookList * list)
 
     /** Print header of the list */
     printf(
-            "---------------------------------------------------\n"
+            "\n\n---------------------------------------------------\n"
             "| Pos | Serial | ID |   Name   |     Telephone    |\n"
             "---------------------------------------------------\n"
     );
@@ -110,21 +110,22 @@ void commandDisplay(AddressBookList * list)
 
     while(current_node != NULL)
     {
+        serialized_phones = serialize_array(list, current_node);
+
         if(current_node == list->current)
         {
-            printf("| %s | %d | %d | %s | %s |",
+            printf("| %s | %d | %d | %s | %s |\n",
                    "CR", phone_index, current_node->id, current_node->name, serialized_phones);
         }
         else
         {
-            printf("| %s | %d | %d | %s | %s |",
-                   EMPTY_STRING, phone_index, current_node->id, current_node->name, serialized_phones);
+            printf("| %s | %d | %d | %s | %s |\n",
+                   "  ", phone_index, current_node->id, current_node->name, serialized_phones);
         }
 
         /** Loop to next node */
         phone_index++;
         current_node = current_node->nextNode;
-        safe_free(serialized_phones);
     }
 
     /** Print footer of the list */
