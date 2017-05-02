@@ -519,7 +519,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     contact_name = parse_result[1];
 
     /** Run insertion */
-    if(parse_result[2] != NULL)
+    if(comma_count >= 2)
     {
         phone_newline_remove_token = strtok(parse_result[2], "\n");
         commandInsert(list, id, contact_name, phone_newline_remove_token);
