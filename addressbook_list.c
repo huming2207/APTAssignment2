@@ -145,6 +145,7 @@ Boolean insertNode(AddressBookList * list, AddressBookNode * node)
         /** Get the "previous current" node */
         previous_current = list->current;
 
+        /** Finalize previous assigns & merges */
         if(previous_current != NULL)
         {
             previous_current_next = previous_current->nextNode;
@@ -388,4 +389,70 @@ AddressBookNode * findByName(AddressBookList * list, char * name)
 
     /** When there IS NOTHING, return NULL */
     return NULL;
+}
+
+Boolean set_list_head(AddressBookList * list)
+{
+    AddressBookNode * current_node;
+    current_node = list->current;
+
+    /** Return true only if the list's current node is set */
+    if(current_node != NULL)
+    {
+        /** Loop until finds the "last next" node */
+        while(current_node->previousNode != NULL)
+        {
+            current_node = current_node->previousNode;
+        }
+
+        list->head = current_node;
+
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+Boolean set_list_tail(AddressBookList * list)
+{
+    AddressBookNode * current_node;
+    current_node = list->current;
+
+    /** Return true only if the list's current node is set */
+    if(current_node != NULL)
+    {
+        /** Loop until finds the "last previous" node */
+        while(current_node->nextNode != NULL)
+        {
+            current_node = current_node->nextNode;
+        }
+
+        list->tail = current_node;
+
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+Boolean set_list_head_tail(AddressBookList * list)
+{
+    /**
+     * Set both head and tail of the list.
+     *
+     * As a C# coder, I decide to make more syntactic sugars to make me feels comfortable lol...
+     */
+
+    if(set_list_head(list) == TRUE && set_list_tail(list) == TRUE)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }

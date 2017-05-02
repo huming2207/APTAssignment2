@@ -68,9 +68,14 @@ AddressBookList * commandLoad(char * fileName)
         }
     }
 
+    /** Finalize the file loading process */
     printf("> %d phone book entries have been loaded from the file.\n", line_count);
     printf("> Closing the file.\n");
     fclose(file);
+
+    /** Finally, initialize the head and tail of the list */
+    set_list_head_tail(list);
+
     return list;
 }
 

@@ -38,4 +38,17 @@ Boolean backward(AddressBookList * list, int backward);
 AddressBookNode * findByID(AddressBookList * list, int id);
 AddressBookNode * findByName(AddressBookList * list, char * name);
 
+/** Some of my useful stuff begins below lol... */
+
+/** Automatically get and set the head of list*/
+Boolean set_list_head(AddressBookList * list);
+
+/** Automatically get and set the tail of list*/
+Boolean set_list_tail(AddressBookList * list);
+
+/**
+ * As a C# coder, I decide to make more syntactic sugars to make me feels comfortable lol...
+ */
+Boolean set_list_head_tail(AddressBookList * list);
+
 #endif
