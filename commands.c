@@ -101,9 +101,9 @@ void commandDisplay(AddressBookList * list)
 
     /** Print header of the list */
     printf(
-            "\n\n---------------------------------------------------\n"
-            "| Pos | Serial | ID |   Name   |     Telephone    |\n"
-            "---------------------------------------------------\n"
+            "\n\n---------------------------------------------------------\n"
+            "|\tPos\t|\tSerial\t|\tID\t|\tName\t|\tTelephone\t|\n"
+            "---------------------------------------------------------\n"
     );
 
     /** Print the main content of the list */
@@ -114,12 +114,12 @@ void commandDisplay(AddressBookList * list)
 
         if(current_node == list->current)
         {
-            printf("| %s | %d | %d | %s | %s |\n",
+            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\t|\n",
                    "CR", phone_index, current_node->id, current_node->name, serialized_phones);
         }
         else
         {
-            printf("| %s | %d | %d | %s | %s |\n",
+            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\t|\n",
                    "  ", phone_index, current_node->id, current_node->name, serialized_phones);
         }
 
@@ -130,9 +130,9 @@ void commandDisplay(AddressBookList * list)
 
     /** Print footer of the list */
     printf(
-            "---------------------------------------------------\n"
-            "| Total phone book entries: %d \t|\n"
-            "---------------------------------------------------\n", phone_index
+            "---------------------------------------------------------\n"
+            "| Total phone book entries: %d \t\t|\n"
+            "---------------------------------------------------------\n", (phone_index - 1)
     );
 
 }
@@ -490,15 +490,15 @@ void parse_insert(AddressBookList * list, char * second_arg)
         }
     }
 
-    /** Should have move than 2 commas (3 arguments) anyway... */
-    if(comma_count < 2)
+    /** Should have move than 1 commas (2 arguments) anyway... */
+    if(comma_count < 1)
     {
         printf("> Invalid input for address details! \n");
         main_menu(list);
     }
 
     /** Do memory (re)allocation for parse_result array itself */
-    parse_result = malloc(sizeof(char*) * comma_count);
+    parse_result = malloc(sizeof(char*) * (comma_count + 1));
 
     split_token = strtok(line_to_parse, ",");
 
@@ -526,14 +526,16 @@ void parse_insert(AddressBookList * list, char * second_arg)
     }
     else
     {
+        contact_name = strtok(contact_name, "\n");
         commandInsert(list, id, contact_name, EMPTY_STRING);
     }
 
     /** Append more telephones if exists and valid. */
     if(comma_count > 2)
     {
-        for(phone_append_index = 0; phone_append_index <= comma_count; phone_append_index++)
+        for(phone_append_index = 3; phone_append_index <= comma_count; phone_append_index++)
         {
+            printf("%s ", parse_result[phone_append_index]);
             if(parse_result[phone_append_index] != NULL)
             {
                 phone_newline_remove_token = strtok(parse_result[phone_append_index], "\n");

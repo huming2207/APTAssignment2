@@ -18,7 +18,7 @@ AddressBookList * createAddressBookList()
     */
     AddressBookList * addressBookList;
 
-    if((addressBookList = malloc(sizeof(*addressBookList))) == NULL)
+    if((addressBookList = malloc(sizeof(AddressBookList))) == NULL)
     {
         printf("> Addressbook List memory allocation failed!\n");
         return NULL;
