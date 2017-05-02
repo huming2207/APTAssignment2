@@ -10,6 +10,7 @@ void main_menu()
     /** Declare something useful... */
     AddressBookList * list;
     char * user_input;
+    list = NULL;
 
     /**
      * 200 chars are quite enough for user input,
@@ -35,12 +36,49 @@ AddressBookList * commandLoad(char * fileName)
      * then NULL is returned.
      */
 
+    AddressBookList * list;
+    FILE * file;
+    char line_buffer[MAX_LINE_LENGTH];
+    int line_count = 0;
 
-    return NULL;
+    /** Try load the file */
+    file = fopen(fileName, "r");
+    printf("> Opening the file at %s \n", fileName);
+
+    if(file == NULL)
+    {
+        printf("> Error: Unable to find the specified file.\n");
+        return NULL;
+    }
+    else
+    {
+        printf("> Loading the file ...\n");
+    }
+
+    /** Initially create the book list */
+    list = createAddressBookList();
+
+    /** Read line by line until the end */
+    while(fgets(line_buffer, MAX_LINE_LENGTH, file) != NULL)
+    {
+        if(line_buffer[0] != '#')
+        {
+            line_count++;
+            parse_insert(list, line_buffer);
+        }
+    }
+
+    printf("> %d phone book entries have been loaded from the file.\n", line_count);
+    printf("> Closing the file.\n");
+    fclose(file);
+    return list;
 }
 
 void commandUnload(AddressBookList * list)
-{ }
+{
+    freeAddressBookList(list);
+    printf("> The list is unloaded.\n");
+}
 
 void commandDisplay(AddressBookList * list)
 { }
@@ -54,7 +92,11 @@ void commandBackward(AddressBookList * list, int moves)
 { }
 
 void commandInsert(AddressBookList * list, int id, char * name, char * telephone)
-{ }
+{
+    AddressBookNode * node = createAddressBookNode(id, name);
+
+    insertNode(list, node);
+}
 
 void commandAdd(AddressBookList * list, char * telephone)
 { }
@@ -122,6 +164,12 @@ void parse_menu(char * user_input, AddressBookList * list)
     {
         /** Parse the second token (file path) and initialize the list */
         list = commandLoad(parse_second_arg(split_token));
+
+        if(list == NULL)
+        {
+            /** No further error output is necessary, just reset it. */
+            main_menu();
+        }
     }
 
     /** Parse unload, no argument is allowed */
@@ -180,10 +228,18 @@ void parse_menu(char * user_input, AddressBookList * list)
         commandRemove(list, parse_second_arg(split_token));
     }
 
+    /** Parse quit, no argument is allowed  */
+    else if(strcmp(&split_token[0], COMMAND_QUIT) == 0 && count_space(user_input, 0, 0) == TRUE)
+    {
+        printf("> Goodbye.\n");
+        exit(0);
+    }
+
     /** For the else things, it must be WRONG, return error message then... */
     else
     {
-        printf("\n> Invalid input! \n");
+        printf("> Invalid input! \n");
+        main_menu();
     }
 }
 
@@ -237,9 +293,9 @@ char * parse_second_arg(char * split_token)
     {
         split_token = strtok(NULL, " ");
 
-        if(strlen(&split_token[0]) > 1)
+        if(strlen(split_token) > 1)
         {
-            return &split_token[0];
+            return split_token;
         }
         else
         {
@@ -258,53 +314,76 @@ char * parse_second_arg(char * split_token)
 void parse_insert(AddressBookList * list, char * second_arg)
 {
     int split_index = 0;
+    int comma_index = 0;
+    int phone_append_index = 0;
+    int comma_count = 0;
     int id = -1;
     char * contact_name;
     char * phone_array_str;
     char * split_token;
+    char ** parse_result;
+    char * line_to_parse;
 
-    split_token = strtok(second_arg, ",");
+    /** Duplicate the input char to avoid pollutions and some other strange issues */
+    line_to_parse = malloc(strlen(second_arg) + EXTRA_SPACES);
+    strcpy(line_to_parse, second_arg);
 
-    for(split_index = 0; split_index <= 2; split_index++)
+    /** Count how much comma exists */
+    for(comma_index = 0; comma_index < strlen(line_to_parse); comma_index++)
     {
-        switch(split_index)
+        if(line_to_parse[comma_index] == ',')
         {
-            case 0:
-            {
-                id = str_to_int(&split_token[0]);
-                break;
-            }
-            case 1:
-            {
-                contact_name = &split_token[0];
-                break;
-            }
-            case 2:
-            {
-                phone_array_str = &split_token[0];
-                break;
-            }
-            default:
-            {
 
-                break;
-            }
-        }
-
-        /** Try get the next token */
-        if(split_token != NULL)
-        {
-            split_token = strtok(NULL, ",");
+            comma_count++;
         }
     }
 
-    if(contact_name != NULL && id  > 0 && phone_array_str != NULL)
+    /** Should have move than 2 commas (3 arguments) anyway... */
+    if(comma_count < 2)
     {
-        commandInsert(list, id, contact_name, phone_array_str);
+        printf("> Invalid input for address details! \n");
+        main_menu();
+    }
+
+    /** Do memory (re)allocation for parse_result array itself */
+    parse_result = malloc(sizeof(char*) * comma_count);
+
+    split_token = strtok(line_to_parse, ",");
+
+    while(split_token != NULL)
+    {
+        if(split_index <= comma_count)
+        {
+            parse_result[split_index] = split_token;
+            split_index++;
+        }
+
+        split_token = strtok(NULL, ",");
+    }
+
+    /** Parse ID and contact name */
+    id = str_to_int(parse_result[0]);
+    contact_name = parse_result[1];
+
+    /** Run insertion */
+    if(parse_result[2] != NULL)
+    {
+        commandInsert(list, id, contact_name, parse_result[2]);
     }
     else
     {
-
+        commandInsert(list, id, contact_name, EMPTY_STRING);
     }
 
+    /** Append more telephones if exists and valid. */
+    if(comma_count > 2)
+    {
+        for(phone_append_index = 0; phone_append_index <= comma_count; phone_append_index++)
+        {
+            if(parse_result[phone_append_index] != NULL)
+            {
+                commandAdd(list, parse_result[phone_append_index]);
+            }
+        }
+    }
 }

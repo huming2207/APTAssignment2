@@ -5,7 +5,7 @@
 * meaning printf's are *NOT* to be present in this file.
 */
 
-AddressBookList *createAddressBookList()
+AddressBookList * createAddressBookList()
 {
     /**
     * Allocates and initialises a new AddressBookList.
@@ -17,7 +17,7 @@ AddressBookList *createAddressBookList()
     * Note head, tail and current should all be initialised to NULL.
     */
 
-    AddressBookList *addressBookList = malloc(sizeof(*addressBookList));
+    AddressBookList * addressBookList = malloc(sizeof(*addressBookList));
 
     addressBookList->size = 0;
     addressBookList->current = NULL;
@@ -27,7 +27,7 @@ AddressBookList *createAddressBookList()
     return addressBookList;
 }
 
-void freeAddressBookList(AddressBookList *list)
+void freeAddressBookList(AddressBookList * list)
 {
     /**
      * Free's all nodes within the list and the AddressBookList itself.
@@ -45,7 +45,7 @@ void freeAddressBookList(AddressBookList *list)
 
 }
 
-AddressBookNode *createAddressBookNode(int id, char *name)
+AddressBookNode * createAddressBookNode(int id, char * name)
 {
     /**
     * Allocates and initialises a new AddressBookNode.
@@ -61,7 +61,7 @@ AddressBookNode *createAddressBookNode(int id, char *name)
     */
 
     /** Create an address book node */
-    AddressBookNode *addressBookNode = malloc(sizeof(*addressBookNode));
+    AddressBookNode * addressBookNode = malloc(sizeof(*addressBookNode));
 
     /** Assign some values to it */
     addressBookNode->array = NULL;
@@ -72,7 +72,7 @@ AddressBookNode *createAddressBookNode(int id, char *name)
     return addressBookNode;
 }
 
-void freeAddressBookNode(AddressBookNode *node)
+void freeAddressBookNode(AddressBookNode * node)
 {
     /**
     * Free's the array within the node and the AddressBookNode itself.
@@ -95,7 +95,7 @@ void freeAddressBookNode(AddressBookNode *node)
     while (next_node != NULL)
     {
         /** Selects current node and wait to clean */
-        AddressBookNode *currentNode = next_node;
+        AddressBookNode * currentNode = next_node;
 
         /** Set the node position to the next one of itself ("next's next" lol) */
         next_node = next_node->nextNode;
@@ -109,7 +109,7 @@ void freeAddressBookNode(AddressBookNode *node)
     while (previous_node != NULL)
     {
         /** Selects previous node and wait to clean */
-        AddressBookNode *previousNode = previous_node;
+        AddressBookNode * previousNode = previous_node;
 
         /** Set the node position to the previous one of itself ("previous's previous" lol) */
         previous_node = previous_node->previousNode;
@@ -123,7 +123,7 @@ void freeAddressBookNode(AddressBookNode *node)
     safe_free(node);
 }
 
-Boolean insertNode(AddressBookList *list, AddressBookNode *node)
+Boolean insertNode(AddressBookList * list, AddressBookNode * node)
 {
     /**
      * Inserts the node into the list and returns TRUE.
@@ -136,13 +136,22 @@ Boolean insertNode(AddressBookList *list, AddressBookNode *node)
     if (findByID(list, node->id) == NULL)
     {
         /** Get the "previous current" node */
-        AddressBookNode *previous_current = list->current;
+        AddressBookNode * previous_current = list->current;
 
-        /** Set the "previous current" node's previous connection to the new node,
-         *  Set the "previous current" node's previous node's next node, to the new node lol!*/
-        AddressBookNode *previous_current_previous = previous_current->previousNode;
-        previous_current->previousNode = node;
-        previous_current_previous->nextNode = node;
+        if(previous_current != NULL)
+        {
+            /**
+             * Set the "previous current" node's previous connection to the new node,
+             *  Set the "previous current" node's previous node's next node, to the new node lol!
+             **/
+            AddressBookNode * previous_current_previous = previous_current->previousNode;
+            previous_current->previousNode = node;
+
+            if(previous_current_previous != NULL)
+            {
+                previous_current_previous->nextNode = node;
+            }
+        }
 
         /** Set the amount, plus one to append */
         list->size++;
@@ -159,7 +168,7 @@ Boolean insertNode(AddressBookList *list, AddressBookNode *node)
 
 }
 
-Boolean deleteCurrentNode(AddressBookList *list)
+Boolean deleteCurrentNode(AddressBookList * list)
 {
     /**
      * Delete's and free's the current node in the list and returns TRUE.
@@ -178,13 +187,13 @@ Boolean deleteCurrentNode(AddressBookList *list)
         /** Find the current node's next node */
         AddressBookNode * next_current_node = list->current->nextNode;
 
-        if(next_current_node != NULL)
+        if (next_current_node != NULL)
         {
             /** Assign next node to previous node */
             next_current_node->previousNode = previous_current_node;
         }
 
-        if(previous_current_node != NULL)
+        if (previous_current_node != NULL)
         {
             /** Set the current node to the originally previous one */
             list->current = previous_current_node;
@@ -195,7 +204,7 @@ Boolean deleteCurrentNode(AddressBookList *list)
              * If originally previous one is null, set the current node to the originally next one
              * If originally next one is also null, then this list is empty
              * */
-            if(next_current_node != NULL)
+            if (next_current_node != NULL)
             {
                 list->current = next_current_node;
             }
@@ -216,7 +225,7 @@ Boolean deleteCurrentNode(AddressBookList *list)
 
 }
 
-Boolean forward(AddressBookList *list, int forward)
+Boolean forward(AddressBookList * list, int forward)
 {
     /**
      * Moves the current node forward in the list by the number provided
@@ -233,10 +242,10 @@ Boolean forward(AddressBookList *list, int forward)
     int step_index = 0;
 
     /** Loop the index to the desired value */
-    while(step_index < forward)
+    while (step_index < forward)
     {
         /** Judge if it can be forward */
-        if(current_node->nextNode != NULL)
+        if (current_node->nextNode != NULL)
         {
             /** Forward it and return true */
             current_node = current_node->nextNode;
@@ -252,7 +261,7 @@ Boolean forward(AddressBookList *list, int forward)
 
 }
 
-Boolean backward(AddressBookList *list, int backward)
+Boolean backward(AddressBookList * list, int backward)
 {
     /**
     * Moves the current node backward in the list by the number provided
@@ -269,10 +278,10 @@ Boolean backward(AddressBookList *list, int backward)
     int step_index = 0;
 
     /** Loop the index to the desired value */
-    while(step_index < backward)
+    while (step_index < backward)
     {
         /** Judge if it can be forward */
-        if(current_node->previousNode != NULL)
+        if (current_node->previousNode != NULL)
         {
             /** Forward it and return true */
             current_node = current_node->previousNode;
@@ -287,7 +296,7 @@ Boolean backward(AddressBookList *list, int backward)
     return TRUE;
 }
 
-AddressBookNode *findByID(AddressBookList *list, int id)
+AddressBookNode * findByID(AddressBookList * list, int id)
 {
     /**
      * Returns the node that matches the id provided.
@@ -296,7 +305,13 @@ AddressBookNode *findByID(AddressBookList *list, int id)
      */
 
     /** Declare a node pointer and set to head position */
-    AddressBookNode *node_query = list->head;
+    AddressBookNode * node_query = list->head;
+
+    /** If the node is null (even not initialized), return NULL result and stop the process */
+    if(node_query == NULL)
+    {
+        return NULL;
+    }
 
     /** If it's lucky enough and the this list's head node is what it wants, simply return it. */
     if (node_query->id == id)
@@ -324,7 +339,7 @@ AddressBookNode *findByID(AddressBookList *list, int id)
     return NULL;
 }
 
-AddressBookNode *findByName(AddressBookList *list, char *name)
+AddressBookNode * findByName(AddressBookList * list, char * name)
 {
     /**
     * Sets current to the first node that matches the name provided
@@ -335,7 +350,13 @@ AddressBookNode *findByName(AddressBookList *list, char *name)
     */
 
     /** Declare a node pointer and set to head position */
-    AddressBookNode *node_query = list->head;
+    AddressBookNode * node_query = list->head;
+
+    /** If the node is null (even not initialized), return NULL result and stop the process */
+    if(node_query == NULL)
+    {
+        return NULL;
+    }
 
     /** If it's lucky enough and the this list's head node is what it wants, simply return it. */
     if (strcmp(node_query->name, name) == 0)

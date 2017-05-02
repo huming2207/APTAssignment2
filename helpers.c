@@ -87,6 +87,7 @@ char * get_user_input(int length)
 
     printf("Enter your command: ");
 
+    /** If user inputs nothing or some issues happens, return NULL to terminate the process */
     if(user_input == NULL)
     {
         return NULL;
@@ -106,6 +107,9 @@ char * get_user_input(int length)
 
     /** Append a null character */
     strcat(user_input, "\0");
+
+    /** Do a trick to remove the new line character */
+    user_input = strtok(user_input, "\n");
 
     return user_input;
 }
