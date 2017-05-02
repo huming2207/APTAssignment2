@@ -9,7 +9,6 @@ void main_menu(AddressBookList * list)
 {
     /** Declare something useful... */
     char * user_input;
-    list = NULL;
 
     /**
      * 200 chars are quite enough for user input,
