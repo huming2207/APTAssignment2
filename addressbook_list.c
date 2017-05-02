@@ -16,8 +16,13 @@ AddressBookList * createAddressBookList()
     * 
     * Note head, tail and current should all be initialised to NULL.
     */
+    AddressBookList * addressBookList;
 
-    AddressBookList * addressBookList = malloc(sizeof(*addressBookList));
+    if((addressBookList = malloc(sizeof(*addressBookList))) == NULL)
+    {
+        printf("> Addressbook List memory allocation failed!\n");
+        return NULL;
+    }
 
     addressBookList->size = 0;
     addressBookList->current = NULL;
@@ -131,25 +136,24 @@ Boolean insertNode(AddressBookList * list, AddressBookNode * node)
      * If the list already contains a node with the same id
      * then FALSE is returned and the node is not inserted.
      */
+    AddressBookNode * previous_current_next;
+    AddressBookNode * previous_current;
 
     /** As it said above, if a node with an existed ID, then return false */
     if (findByID(list, node->id) == NULL)
     {
         /** Get the "previous current" node */
-        AddressBookNode * previous_current = list->current;
+        previous_current = list->current;
 
         if(previous_current != NULL)
         {
-            /**
-             * Set the "previous current" node's previous connection to the new node,
-             *  Set the "previous current" node's previous node's next node, to the new node lol!
-             **/
-            AddressBookNode * previous_current_previous = previous_current->previousNode;
-            previous_current->previousNode = node;
+            previous_current_next = previous_current->nextNode;
 
-            if(previous_current_previous != NULL)
+            previous_current->nextNode = node;
+
+            if(previous_current_next != NULL)
             {
-                previous_current_previous->nextNode = node;
+                previous_current_next->previousNode = node;
             }
         }
 
@@ -157,7 +161,9 @@ Boolean insertNode(AddressBookList * list, AddressBookNode * node)
         list->size++;
 
         /** All done, set **real** current one to the new node */
+        node->previousNode = previous_current;
         list->current = node;
+
 
         return TRUE;
     }

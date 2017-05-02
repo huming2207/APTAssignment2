@@ -93,13 +93,19 @@ void commandBackward(AddressBookList * list, int moves)
 
 void commandInsert(AddressBookList * list, int id, char * name, char * telephone)
 {
+    /** Initialize a node and its array... */
     AddressBookNode * node = createAddressBookNode(id, name);
+    node->array = createAddressBookArray();
 
+    /** Add a phone number into it. */
+    addTelephone(node->array, telephone);
     insertNode(list, node);
 }
 
 void commandAdd(AddressBookList * list, char * telephone)
-{ }
+{
+    addTelephone(list->current->array, telephone);
+}
 
 void commandFind(AddressBookList * list, char * name)
 { }
@@ -313,16 +319,16 @@ char * parse_second_arg(char * split_token)
 
 void parse_insert(AddressBookList * list, char * second_arg)
 {
-    int split_index = 0;
+    int comma_count = 0;
     int comma_index = 0;
     int phone_append_index = 0;
-    int comma_count = 0;
-    int id = -1;
+    int split_index = 0;
+    int id;
     char * contact_name;
-    char * phone_array_str;
     char * split_token;
     char ** parse_result;
     char * line_to_parse;
+    char * phone_newline_remove_token;
 
     /** Duplicate the input char to avoid pollutions and some other strange issues */
     line_to_parse = malloc(strlen(second_arg) + EXTRA_SPACES);
@@ -368,7 +374,9 @@ void parse_insert(AddressBookList * list, char * second_arg)
     /** Run insertion */
     if(parse_result[2] != NULL)
     {
-        commandInsert(list, id, contact_name, parse_result[2]);
+        phone_newline_remove_token = strtok(parse_result[2], "\n");
+        commandInsert(list, id, contact_name, phone_newline_remove_token);
+        phone_newline_remove_token = NULL;
     }
     else
     {
@@ -382,7 +390,9 @@ void parse_insert(AddressBookList * list, char * second_arg)
         {
             if(parse_result[phone_append_index] != NULL)
             {
-                commandAdd(list, parse_result[phone_append_index]);
+                phone_newline_remove_token = strtok(parse_result[phone_append_index], "\n");
+                commandAdd(list, phone_newline_remove_token);
+                phone_newline_remove_token = NULL;
             }
         }
     }
