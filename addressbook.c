@@ -20,6 +20,6 @@ int main(int argc, char ** argv)
 
     printf("%s", studentInfo);
 
-    main_menu();
+    main_menu(NULL);
     return EXIT_SUCCESS;
 }

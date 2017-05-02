@@ -38,7 +38,10 @@ int compareName(const void * node, const void * otherNode);
 int compareID(const void * node, const void * otherNode);
 void commandSave(AddressBookList * list, char * fileName);
 
-void main_menu();
+/**
+ * Main menu stuff
+ */
+void main_menu(AddressBookList * list);
 
 /**
  * Parse the user input command for main menu
@@ -47,8 +50,10 @@ void parse_menu(char * user_input, AddressBookList * list);
 
 Boolean count_space(char * user_input, int desired_spaces, int desired_commas);
 
-char * parse_second_arg(char * split_token);
+char * parse_second_arg(AddressBookList * list, char * split_token);
 
 void parse_insert(AddressBookList * list, char * second_arg);
+
+char * serialize_array(AddressBookList * list, AddressBookNode * current_node);
 
 #endif

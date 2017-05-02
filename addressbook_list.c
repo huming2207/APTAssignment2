@@ -66,13 +66,21 @@ AddressBookNode * createAddressBookNode(int id, char * name)
     */
 
     /** Create an address book node */
-    AddressBookNode * addressBookNode = malloc(sizeof(*addressBookNode));
+    AddressBookNode * addressBookNode;
+    if((addressBookNode = malloc(sizeof(*addressBookNode))) == NULL)
+    {
+        printf("Memory allocation for Addressbook node failed!\n");
+        return NULL;
+    }
 
     /** Assign some values to it */
     addressBookNode->array = NULL;
     addressBookNode->id = id;
     addressBookNode->nextNode = NULL;
     addressBookNode->previousNode = NULL;
+
+    /** Initialize the name, duplicate it to prevent pollutions or other strange issues */
+    strcpy(addressBookNode->name, name);
 
     return addressBookNode;
 }

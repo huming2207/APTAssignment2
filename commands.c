@@ -5,10 +5,9 @@
  * meaning printf's are expected to be seen in this file.
  */
 
-void main_menu()
+void main_menu(AddressBookList * list)
 {
     /** Declare something useful... */
-    AddressBookList * list;
     char * user_input;
     list = NULL;
 
@@ -86,44 +85,184 @@ void commandUnload(AddressBookList * list)
 }
 
 void commandDisplay(AddressBookList * list)
-{ }
+{
+    int phone_index;
+    AddressBookNode * current_node;
+    char * serialized_phones;
+
+    serialized_phones = NULL;
+    current_node = list->head;
+    phone_index = 1;
+
+    if(current_node == NULL)
+    {
+        printf("> Address book is empty!\n");
+        main_menu(list);
+    }
+
+    /** Print header of the list */
+    printf(
+            "---------------------------------------------------\n"
+            "| Pos | Serial | ID |   Name   |     Telephone    |\n"
+            "---------------------------------------------------\n"
+    );
+
+    /** Print the main content of the list */
+
+    while(current_node != NULL)
+    {
+        if(current_node == list->current)
+        {
+            printf("| %s | %d | %d | %s | %s |",
+                   "CR", phone_index, current_node->id, current_node->name, serialized_phones);
+        }
+        else
+        {
+            printf("| %s | %d | %d | %s | %s |",
+                   EMPTY_STRING, phone_index, current_node->id, current_node->name, serialized_phones);
+        }
+
+        /** Loop to next node */
+        phone_index++;
+        current_node = current_node->nextNode;
+        safe_free(serialized_phones);
+    }
+
+    /** Print footer of the list */
+    printf(
+            "---------------------------------------------------\n"
+            "| Total phone book entries: %d \t|\n"
+            "---------------------------------------------------\n", phone_index
+    );
+
+}
 
 void commandForward(AddressBookList * list, int moves)
 {
-    printf("Got %d moves\n", moves);
+    int move_steps;
+    AddressBookNode * current_node;
+    current_node = list->current;
+
+    /** Loop until it reaches the desired node, or if it can't, return an error message. */
+    if(current_node != NULL)
+    {
+        for(move_steps = 0; move_steps < moves; move_steps++)
+        {
+            if(current_node == NULL)
+            {
+                printf("> No more entry exists!\n");
+                main_menu(list);
+            }
+
+            current_node = current_node->nextNode;
+        }
+    }
+    else
+    {
+        printf("> No more entry exists!\n");
+        main_menu(list);
+    }
 }
 
 void commandBackward(AddressBookList * list, int moves)
-{ }
+{
+    int move_steps;
+    AddressBookNode * current_node;
+    current_node = list->current;
+
+    /** Loop until it reaches the desired node, or if it can't, return an error message. */
+    if(current_node != NULL)
+    {
+        for(move_steps = 0; move_steps < moves; move_steps++)
+        {
+            if(current_node == NULL)
+            {
+                printf("> No more entry exists!\n");
+                main_menu(list);
+            }
+
+            current_node = current_node->previousNode;
+        }
+    }
+    else
+    {
+        printf("> No more entry exists!\n");
+        main_menu(list);
+    }
+}
 
 void commandInsert(AddressBookList * list, int id, char * name, char * telephone)
 {
-    /** Initialize a node and its array... */
-    AddressBookNode * node = createAddressBookNode(id, name);
-    node->array = createAddressBookArray();
+    if(id >= NODE_MINIMUM_ID && strlen(name) <= NAME_LENGTH)
+    {
+        /** Initialize a node and its array... */
+        AddressBookNode * node = createAddressBookNode(id, name);
+        node->array = createAddressBookArray();
 
-    /** Add a phone number into it. */
-    addTelephone(node->array, telephone);
-    insertNode(list, node);
+        /** Add a phone number into it. */
+        addTelephone(node->array, telephone);
+        insertNode(list, node);
+    }
+    else
+    {
+        printf("> Invalid length range for name %s or ID %d!\n", name, id);
+        main_menu(list);
+    }
 }
 
 void commandAdd(AddressBookList * list, char * telephone)
 {
-    addTelephone(list->current->array, telephone);
+    if(addTelephone(list->current->array, telephone) == TRUE)
+    {
+        printf("> Phone number %s has been added.\n", telephone);
+    }
+    else
+    {
+        printf("> Cannot add phone number %s !\n", telephone);
+    }
 }
 
 void commandFind(AddressBookList * list, char * name)
-{ }
+{
+    AddressBookNode * result_node;
+    result_node = findByName(list, name);
+
+    if(result_node != NULL)
+    {
+        list->current = result_node;
+    }
+    else
+    {
+        printf("> Cannot find any entry with name %s !\n", name);
+        main_menu(list);
+    }
+}
 
 void commandDelete(AddressBookList * list)
-{ }
+{
+    if(deleteCurrentNode(list) == TRUE)
+    {
+        printf("> Current node has been deleted.\n");
+    }
+    else
+    {
+        printf("> Cannot delete current node!\n");
+    }
+}
 
 void commandRemove(AddressBookList * list, char * telephone)
-{ }
+{
+    if(removeTelephone(list->current->array, telephone) == TRUE)
+    {
+        printf("> Phone number %s has been removed.\n", telephone);
+    }
+    else
+    {
+        printf("> Cannot remove phone number %s !\n", telephone);
+    }
+}
 
-void commandSort(
-    AddressBookList * list,
-    int sort(const void * node, const void * otherNode))
+void commandSort(AddressBookList * list, int sort(const void * node, const void * otherNode))
 {
     /* Sort the nodes within list in ascending order using the
      * provided sort function to compare nodes.
@@ -174,12 +313,12 @@ void parse_menu(char * user_input, AddressBookList * list)
     if(strcmp(&split_token[0], COMMAND_LOAD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         /** Parse the second token (file path) and initialize the list */
-        list = commandLoad(parse_second_arg(split_token));
+        list = commandLoad(parse_second_arg(list, split_token));
 
         if(list == NULL)
         {
             /** No further error output is necessary, just reset it. */
-            main_menu();
+            main_menu(list);
         }
     }
 
@@ -198,33 +337,33 @@ void parse_menu(char * user_input, AddressBookList * list)
     /** Parse forward, takes 1 argument */
     else if(strcmp(split_token, COMMAND_FORWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
-        int step = str_to_int(parse_second_arg(split_token));
+        int step = str_to_int(parse_second_arg(list, split_token));
         commandForward(list, step);
     }
 
     /** Parse backward, takes 1 argument */
     else if(strcmp(&split_token[0], COMMAND_BACKWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
-        int step = str_to_int(parse_second_arg(split_token));
+        int step = str_to_int(parse_second_arg(list, split_token));
         commandBackward(list, step);
     }
 
     /** Parse insert, takes 3 arguments with comma separated */
     else if(strcmp(&split_token[0], COMMAND_INSERT) == 0 && count_space(user_input, 1, 2) == TRUE)
     {
-        parse_insert(list, parse_second_arg(split_token));
+        parse_insert(list, parse_second_arg(list, split_token));
     }
 
     /** Parse add, takes 1 argument  */
     else if(strcmp(&split_token[0], COMMAND_ADD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
-        commandAdd(list, parse_second_arg(split_token));
+        commandAdd(list, parse_second_arg(list, split_token));
     }
 
     /** Parse find, takes 1 argument */
     else if(strcmp(&split_token[0], COMMAND_FIND) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
-        commandFind(list, parse_second_arg(split_token));
+        commandFind(list, parse_second_arg(list, split_token));
     }
 
     /** Parse delete, no argument is allowed */
@@ -236,7 +375,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     /** Parse remove, takes 1 argument */
     else if(strcmp(&split_token[0], COMMAND_REMOVE) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
-        commandRemove(list, parse_second_arg(split_token));
+        commandRemove(list, parse_second_arg(list, split_token));
     }
 
     /** Parse quit, no argument is allowed  */
@@ -250,8 +389,10 @@ void parse_menu(char * user_input, AddressBookList * list)
     else
     {
         printf("> Invalid input! \n");
-        main_menu();
+        main_menu(list);
     }
+
+    main_menu(list);
 }
 
 Boolean count_space(char * user_input, int desired_spaces, int desired_commas)
@@ -298,7 +439,7 @@ Boolean count_space(char * user_input, int desired_spaces, int desired_commas)
 
 }
 
-char * parse_second_arg(char * split_token)
+char * parse_second_arg(AddressBookList * list, char * split_token)
 {
     while(split_token != NULL)
     {
@@ -311,7 +452,7 @@ char * parse_second_arg(char * split_token)
         else
         {
             printf("> Invalid input.\n");
-            main_menu();
+            main_menu(list);
 
             /** For shutting up gcc only... */
             return NULL;
@@ -353,7 +494,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     if(comma_count < 2)
     {
         printf("> Invalid input for address details! \n");
-        main_menu();
+        main_menu(list);
     }
 
     /** Do memory (re)allocation for parse_result array itself */
@@ -396,9 +537,40 @@ void parse_insert(AddressBookList * list, char * second_arg)
             if(parse_result[phone_append_index] != NULL)
             {
                 phone_newline_remove_token = strtok(parse_result[phone_append_index], "\n");
-                commandAdd(list, phone_newline_remove_token);
+                addTelephone(list->current->array, phone_newline_remove_token);
                 phone_newline_remove_token = NULL;
             }
         }
     }
+}
+
+char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
+{
+    /**
+     * Nothing but just for serialize all the strings arrays from a node
+     * and merge them into a single string with comma divided.
+     * */
+    int phone_index;
+    char * serialized_phones;
+    serialized_phones = NULL;
+
+    for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
+    {
+        /** Serialize the phone number(s) */
+        if((serialized_phones = malloc(sizeof(current_node->array->telephones) * current_node->array->size)) == NULL)
+        {
+            printf("> Memory allocation for phone text failed!\n");
+            main_menu(list);
+        }
+
+        strcat(serialized_phones, current_node->array->telephones[phone_index]);
+
+        /** The last string does not need to separate  */
+        if(phone_index != (current_node->array->size - 1))
+        {
+            strcat(serialized_phones, ", ");
+        }
+    }
+
+    return serialized_phones;
 }
