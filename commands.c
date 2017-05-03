@@ -18,8 +18,18 @@ void main_menu(AddressBookList * list)
      * */
     user_input = get_user_input(200);
 
-    /** Parse all those commands */
-    parse_menu(user_input, list);
+    if(user_input == NULL)
+    {
+        printf("> Parsing user input failed, please try again!\n");
+        main_menu(list);
+    }
+    else
+    {
+        /** Parse all those commands */
+        parse_menu(user_input, list);
+    }
+
+
 
     clean_user_input_buffer(user_input);
 
@@ -80,6 +90,7 @@ AddressBookList * commandLoad(char * fileName)
 void commandUnload(AddressBookList * list)
 {
     freeAddressBookList(list);
+
     printf("> The list is unloaded.\n");
 }
 
@@ -200,9 +211,16 @@ void commandInsert(AddressBookList * list, int id, char * name, char * telephone
         node->array = createAddressBookArray();
 
         /** Add a phone number into it. */
-        addTelephone(node->array, telephone);
-        insertNode(list, node);
-        printf("> Insertion complete.\n");
+        if(addTelephone(node->array, telephone) == TRUE && insertNode(list, node) == TRUE)
+        {
+            printf("> Insertion complete.\n");
+        }
+        else
+        {
+            printf("> Insertion failed for ID %d and name %s!\n", id, name);
+        }
+
+
     }
     else
     {
@@ -473,13 +491,14 @@ void parse_insert(AddressBookList * list, char * second_arg)
     int id;
     char * contact_name;
     char * split_token;
-    char ** parse_result;
-    char * line_to_parse;
+    char ** parse_result; /** Initialize a "string array" to deal with the parsing separation */
+
+    char line_to_parse[MAX_LINE_LENGTH];
     char * phone_newline_remove_token;
 
     /** Duplicate the input char to avoid pollutions and some other strange issues */
-    line_to_parse = malloc(strlen(second_arg) + EXTRA_SPACES);
     strcpy(line_to_parse, second_arg);
+
 
     /** Count how much comma exists */
     for(comma_index = 0; comma_index < strlen(line_to_parse); comma_index++)

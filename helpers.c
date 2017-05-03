@@ -100,8 +100,6 @@ char * get_user_input(int length)
     if(user_input[strlen(user_input) - 1] != '\n')
     {
         readRestOfLine();
-
-        /* TODO: Should not just simply return NULL */
         return NULL;
     }
 
