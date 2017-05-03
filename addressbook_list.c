@@ -93,46 +93,13 @@ void freeAddressBookNode(AddressBookNode * node)
     * Note the freeAddressBookArray(...) function is used to free the array.
     */
 
-    /** Declare the nodes */
-    AddressBookNode * next_node;
-    AddressBookNode * previous_node;
-
-    /** Free up the array */
-    freeAddressBookArray(node->array);
-
-    /** Clean up the address book node */
-    next_node = node->nextNode;
-    previous_node = node->previousNode;
-
-    /** Wipe up all those nodes which in this one's FRONT position */
-    while (next_node != NULL)
+    /** If this node's array is not null, wipe it up too. */
+    if(node->array != NULL)
     {
-        /** Selects current node and wait to clean */
-        AddressBookNode * currentNode = next_node;
-
-        /** Set the node position to the next one of itself ("next's next" lol) */
-        next_node = next_node->nextNode;
-
-        /** Then clean the current one */
         freeAddressBookArray(node->array);
-        safe_free(currentNode);
     }
 
-    /** Wipe up all those nodes which in this one's BACK position */
-    while (previous_node != NULL)
-    {
-        /** Selects previous node and wait to clean */
-        AddressBookNode * previousNode = previous_node;
-
-        /** Set the node position to the previous one of itself ("previous's previous" lol) */
-        previous_node = previous_node->previousNode;
-
-        /** Then clean the current one */
-        freeAddressBookArray(node->array);
-        safe_free(previousNode);
-    }
-
-    /** Finally, clean up itself */
+    /** Then wipe itself */
     safe_free(node);
 }
 
@@ -194,43 +161,55 @@ Boolean deleteCurrentNode(AddressBookList * list)
      * then FALSE is returned.
      */
 
-    if (list->current != NULL || list->size != 0)
+    /**
+     * Basically there are four situations:
+     *
+     * 1. Current node is between two non-null node
+     * 2. Current node does not have its next node (tail node)
+     * 3. Current node does not have its previous node (head node)
+     * 4. Current node does not have both next node and previous node, i.e. it is alone, single, no friend, no family etc...
+     *
+     * */
+    AddressBookNode * current_node;
+
+    if (list->current != NULL && list->size != 0)
     {
-        /** Find the current node's previous node */
-        AddressBookNode * previous_current_node = list->current->previousNode;
-
-        /** Find the current node's next node */
-        AddressBookNode * next_current_node = list->current->nextNode;
-
-        if (next_current_node != NULL)
+        if(list->current->nextNode != NULL && list->current->previousNode != NULL)
         {
-            /** Assign next node to previous node */
-            next_current_node->previousNode = previous_current_node;
+            /** Situation #1 - Current node is between two non-null node */
+            /** Break its connection, then connect the neighbour nodes together */
+            current_node = list->current;
+            current_node->previousNode->nextNode = current_node->nextNode;
+            current_node->nextNode->previousNode = current_node->previousNode;
+            list->current = current_node->nextNode;
+            freeAddressBookNode(current_node);
         }
-
-        if (previous_current_node != NULL)
+        else if(list->current->nextNode == NULL && list->current->previousNode != NULL)
         {
-            /** Set the current node to the originally previous one */
-            list->current = previous_current_node;
+            /** Situation #2 - Current node does not have its next node (tail node) */
+            /** Break its connection, then connect the previous node's next node to NULL */
+            current_node = list->current;
+            current_node->previousNode->nextNode = NULL;
+            list->current = current_node->previousNode;
+            freeAddressBookNode(current_node);
+        }
+        else if(list->current->nextNode != NULL && list->current->previousNode == NULL)
+        {
+            /** Situation #3 - Current node does not have its previous node (head node) */
+            /** Break its connection, then connect the next node's previous node to NULL */
+            current_node = list->current;
+            current_node->nextNode->previousNode = NULL;
+            list->current = current_node->nextNode;
+            freeAddressBookNode(current_node);
         }
         else
         {
-            /**
-             * If originally previous one is null, set the current node to the originally next one
-             * If originally next one is also null, then this list is empty
-             * */
-            if (next_current_node != NULL)
-            {
-                list->current = next_current_node;
-            }
+            /** Situation #4 - Current node does not have both next node and previous node */
+            freeAddressBookNode(list->current);
         }
 
-        /** Wipe the current node */
-        freeAddressBookNode(list->current);
-
-        /** Set the amount */
+        /** Shrink the size of the list */
         list->size--;
-
         return TRUE;
     }
     else
