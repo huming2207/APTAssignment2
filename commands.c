@@ -493,7 +493,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     char * split_token;
     char ** parse_result; /** Initialize a "string array" to deal with the parsing separation */
 
-    char line_to_parse[MAX_LINE_LENGTH];
+    char line_to_parse[MAX_LINE_LENGTH]; /** (Force) allocate a new chunk of memory to deal with the duplication later */
     char * phone_newline_remove_token;
 
     /** Duplicate the input char to avoid pollutions and some other strange issues */
@@ -575,15 +575,22 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
     char * serialized_phones;
     serialized_phones = NULL;
 
+    /** Serialize the phone number(s) */
+    if((serialized_phones = malloc(sizeof(current_node->array->telephones) * current_node->array->size)) == NULL)
+    {
+        printf("> Memory allocation for phone text failed!\n");
+        main_menu(list);
+    }
+
+    /**
+     * Workaround: force clean up the string memory chunk before serialization
+     * Sometimes the memory of this string may be duplicated with others, I have no idea about this.
+     *    So just simply wipe it before using.
+     * */
+    strcpy(serialized_phones, EMPTY_STRING);
+
     for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
     {
-        /** Serialize the phone number(s) */
-        if((serialized_phones = malloc(sizeof(current_node->array->telephones) * current_node->array->size)) == NULL)
-        {
-            printf("> Memory allocation for phone text failed!\n");
-            main_menu(list);
-        }
-
         strcat(serialized_phones, current_node->array->telephones[phone_index]);
 
         /** The last string does not need to separate  */
