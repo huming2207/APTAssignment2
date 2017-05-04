@@ -54,6 +54,6 @@ char * parse_second_arg(AddressBookList * list, char * split_token);
 
 void parse_insert(AddressBookList * list, char * second_arg);
 
-char * serialize_array(AddressBookList * list, AddressBookNode * current_node);
+char * serialize_array(AddressBookList * list, AddressBookNode * current_node, Boolean extra_space);
 
 #endif

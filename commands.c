@@ -121,7 +121,7 @@ void commandDisplay(AddressBookList * list)
 
     while(current_node != NULL)
     {
-        serialized_phones = serialize_array(list, current_node);
+        serialized_phones = serialize_array(list, current_node, TRUE);
 
         if(current_node == list->current)
         {
@@ -152,6 +152,16 @@ void commandForward(AddressBookList * list, int moves)
 {
     int move_steps;
 
+    if(moves < 1)
+    {
+        main_menu(list);
+        printf("> Wrong input for moves, it should be greater than 1 anyway.\n");
+    }
+    else
+    {
+        printf("> Try moving forward for %d contacts...\n", moves);
+    }
+
     /** Loop until it reaches the desired node, or if it can't, return an error message. */
     if(list->current->nextNode != NULL)
     {
@@ -176,6 +186,16 @@ void commandForward(AddressBookList * list, int moves)
 void commandBackward(AddressBookList * list, int moves)
 {
     int move_steps;
+
+    if(moves < 1)
+    {
+        main_menu(list);
+        printf("> Wrong input for moves, it should be greater than 1 anyway.\n");
+    }
+    else
+    {
+        printf("> Try moving forward for %d contacts...\n", moves);
+    }
 
     /** Loop until it reaches the desired node, or if it can't, return an error message. */
     if(list->current->previousNode != NULL)
@@ -308,7 +328,60 @@ int compareID(const void * node, const void * otherNode)
 }
 
 void commandSave(AddressBookList * list, char * fileName)
-{ }
+{
+    /** Initialize the file stuff */
+    FILE * file;
+    AddressBookNode * current_node;
+    size_t str_size;
+    char * serialized_phones;
+    int fclose_return_value;
+
+    fclose_return_value = -1;
+    current_node = NULL;
+    serialized_phones = NULL;
+    file = NULL;
+
+    /** Detect if the list is valid or not... */
+    if(list != NULL && list->head != NULL)
+    {
+        printf("> Opening file at %s...\n", fileName);
+        current_node = list->head;
+        file = fopen(fileName, "w");
+    }
+    else
+    {
+        printf("> Invalid list found. Try run \"load\" again before saving the list.\n");
+        main_menu(list);
+    }
+
+    printf("> Writing content to file...\n");
+    while(current_node != NULL)
+    {
+        /** Write to file buffer... */
+        fprintf(file, "%d,%s", current_node->id, current_node->name);
+        if(current_node->array->size > 0)
+        {
+            serialized_phones = serialize_array(list, current_node, FALSE);
+            fprintf(file, ",%s\n", serialized_phones);
+        }
+
+        /** Process to the next one... */
+        current_node = current_node->nextNode;
+    }
+
+    /** Finalize the process */
+    printf("> Syncing cache and closing the file...\n");
+    fclose_return_value = fclose(file);
+    if(fclose_return_value != 0)
+    {
+        printf("> Save failed to path %s, fclose returns %d, not zero!\n", fileName, fclose_return_value);
+        main_menu(list);
+    }
+    else
+    {
+        printf("> File %s has been created and saved successfully!\n", fileName);
+    }
+}
 
 
 
@@ -354,7 +427,6 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(split_token, COMMAND_FORWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(list, split_token));
-        printf("> Try moving forward for %d contacts...\n", step);
         commandForward(list, step);
     }
 
@@ -362,7 +434,6 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(&split_token[0], COMMAND_BACKWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(list, split_token));
-        printf("> Try moving backward for %d contacts...\n", step);
         commandBackward(list, step);
     }
 
@@ -401,6 +472,12 @@ void parse_menu(char * user_input, AddressBookList * list)
     {
         printf("> Goodbye.\n");
         exit(0);
+    }
+
+    /** Parse quit, takes 1 argument */
+    else if(strcmp(&split_token[0], COMMAND_SAVE) == 0 && count_space(user_input, 1, 0) == TRUE)
+    {
+        commandSave(list, parse_second_arg(list, split_token));
     }
 
     /** For the else things, it must be WRONG, return error message then... */
@@ -564,7 +641,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     }
 }
 
-char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
+char * serialize_array(AddressBookList * list, AddressBookNode * current_node, Boolean extra_space)
 {
     /**
      * Nothing but just for serialize all the strings arrays from a node
@@ -595,7 +672,14 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
         /** The last string does not need to separate  */
         if(phone_index != (current_node->array->size - 1))
         {
-            strcat(serialized_phones, ", ");
+            if(extra_space == TRUE)
+            {
+                strcat(serialized_phones, ", ");
+            }
+            else
+            {
+                strcat(serialized_phones, ",");
+            }
         }
     }
 
