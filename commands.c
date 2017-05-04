@@ -153,11 +153,11 @@ void commandForward(AddressBookList * list, int moves)
     int move_steps;
 
     /** Loop until it reaches the desired node, or if it can't, return an error message. */
-    if(list->current != NULL)
+    if(list->current->nextNode != NULL)
     {
         for(move_steps = 0; move_steps < moves; move_steps++)
         {
-            if(list->current == NULL)
+            if(list->current->nextNode == NULL)
             {
                 printf("> No more entry exists!\n");
                 main_menu(list);
@@ -178,11 +178,11 @@ void commandBackward(AddressBookList * list, int moves)
     int move_steps;
 
     /** Loop until it reaches the desired node, or if it can't, return an error message. */
-    if(list->current != NULL)
+    if(list->current->previousNode != NULL)
     {
         for(move_steps = 0; move_steps < moves; move_steps++)
         {
-            if(list->current == NULL)
+            if(list->current->previousNode == NULL)
             {
                 printf("> No more entry exists!\n");
                 main_menu(list);
@@ -585,7 +585,7 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
      * Sometimes the memory of this string may be duplicated with others, I have no idea about this.
      *    So just simply wipe it before using.
      * */
-    memset(serialized_phones, 0, sizeof(serialized_phones));
+    memset(serialized_phones, 0, sizeof(char*));
 
     for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
     {
