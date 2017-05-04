@@ -151,21 +151,19 @@ void commandDisplay(AddressBookList * list)
 void commandForward(AddressBookList * list, int moves)
 {
     int move_steps;
-    AddressBookNode * current_node;
-    current_node = list->current;
 
     /** Loop until it reaches the desired node, or if it can't, return an error message. */
-    if(current_node != NULL)
+    if(list->current != NULL)
     {
         for(move_steps = 0; move_steps < moves; move_steps++)
         {
-            if(current_node == NULL)
+            if(list->current == NULL)
             {
                 printf("> No more entry exists!\n");
                 main_menu(list);
             }
 
-            current_node = current_node->nextNode;
+            list->current = list->current->nextNode;
         }
     }
     else
@@ -178,21 +176,19 @@ void commandForward(AddressBookList * list, int moves)
 void commandBackward(AddressBookList * list, int moves)
 {
     int move_steps;
-    AddressBookNode * current_node;
-    current_node = list->current;
 
     /** Loop until it reaches the desired node, or if it can't, return an error message. */
-    if(current_node != NULL)
+    if(list->current != NULL)
     {
         for(move_steps = 0; move_steps < moves; move_steps++)
         {
-            if(current_node == NULL)
+            if(list->current == NULL)
             {
                 printf("> No more entry exists!\n");
                 main_menu(list);
             }
 
-            current_node = current_node->previousNode;
+            list->current = list->current->previousNode;
         }
     }
     else
@@ -357,6 +353,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(split_token, COMMAND_FORWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(list, split_token));
+        printf("> Try moving forward for %d contacts...\n", step);
         commandForward(list, step);
     }
 
@@ -364,6 +361,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(&split_token[0], COMMAND_BACKWARD) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         int step = str_to_int(parse_second_arg(list, split_token));
+        printf("> Try moving backward for %d contacts...\n", step);
         commandBackward(list, step);
     }
 
@@ -464,7 +462,7 @@ char * parse_second_arg(AddressBookList * list, char * split_token)
     {
         split_token = strtok(NULL, " ");
 
-        if(strlen(split_token) > 1)
+        if(split_token != NULL)
         {
             return split_token;
         }
@@ -573,10 +571,10 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
      * */
     int phone_index;
     char * serialized_phones;
-    serialized_phones = NULL;
+    serialized_phones = NULL; /** Shutting up the gcc warning */
 
-    /** Serialize the phone number(s) */
-    if((serialized_phones = malloc(sizeof(current_node->array->telephones) * current_node->array->size)) == NULL)
+    /** Serialize the phone number(s), plus 1 for null space char "\0". */
+    if((serialized_phones = malloc((sizeof(current_node->array->telephones) * current_node->array->size) + 1)) == NULL)
     {
         printf("> Memory allocation for phone text failed!\n");
         main_menu(list);
@@ -587,7 +585,7 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node)
      * Sometimes the memory of this string may be duplicated with others, I have no idea about this.
      *    So just simply wipe it before using.
      * */
-    strcpy(serialized_phones, EMPTY_STRING);
+    memset(serialized_phones, 0, sizeof(serialized_phones));
 
     for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
     {
