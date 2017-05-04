@@ -319,6 +319,8 @@ AddressBookNode * findByID(AddressBookList * list, int id)
         /** If it's lucky enough and the this next node is what it wants, simply return it. */
         if (node_query->nextNode->id == id)
         {
+            /** Set the next node to the node it needs and return */
+            node_query = node_query->nextNode;
             return node_query;
         }
         else
@@ -364,6 +366,8 @@ AddressBookNode * findByName(AddressBookList * list, char * name)
         /** If it's lucky enough and the this next node is what it wants, simply return it. */
         if (strcmp(node_query->nextNode->name, name) == 0)
         {
+            /** Set the next node to the node it needs and return */
+            node_query = node_query->nextNode;
             return node_query;
         }
         else

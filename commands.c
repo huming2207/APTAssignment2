@@ -244,6 +244,7 @@ void commandFind(AddressBookList * list, char * name)
 
     if(result_node != NULL)
     {
+        printf("> Found %s in contact list. \n", name);
         list->current = result_node;
     }
     else
