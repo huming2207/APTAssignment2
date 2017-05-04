@@ -20,6 +20,31 @@ int main(int argc, char ** argv)
 
     printf("%s", studentInfo);
 
-    main_menu(NULL);
+    if(argc == 2)
+    {
+        printf("> Trying to load file at %s...\n", argv[1]);
+        init_main_menu(argv[1]);
+    }
+    else
+    {
+        printf("> [WARNING] No file specified, please run \"load FILE_PATH\" to load a CSV file.\n");
+    }
+
     return EXIT_SUCCESS;
+}
+
+void init_main_menu(char * file_path)
+{
+    AddressBookList * list;
+
+    /** If there is no file path pass in, call main_menu() directly. */
+    if(file_path == NULL)
+    {
+        main_menu(NULL);
+    }
+    else
+    {
+        list = commandLoad(file_path);
+        main_menu(list);
+    }
 }

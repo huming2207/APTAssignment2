@@ -30,9 +30,7 @@ void main_menu(AddressBookList * list)
     }
 
 
-
     clean_user_input_buffer(user_input);
-
 }
 
 AddressBookList * commandLoad(char * fileName)
@@ -142,7 +140,7 @@ void commandDisplay(AddressBookList * list)
     /** Print footer of the list */
     printf(
             "---------------------------------------------------------\n"
-            "| Total phone book entries: %d \t\t|\n"
+            "| Total phone book entries: %d \t\t\t|\n"
             "---------------------------------------------------------\n", (phone_index - 1)
     );
 
@@ -235,8 +233,6 @@ void commandInsert(AddressBookList * list, int id, char * name, char * telephone
         {
             printf("> Insertion failed for ID %d and name %s!\n", id, name);
         }
-
-
     }
     else
     {
@@ -332,7 +328,6 @@ void commandSave(AddressBookList * list, char * fileName)
     /** Initialize the file stuff */
     FILE * file;
     AddressBookNode * current_node;
-    size_t str_size;
     char * serialized_phones;
     int fclose_return_value;
 
@@ -595,7 +590,6 @@ void parse_insert(AddressBookList * list, char * second_arg)
 
     /** Do memory (re)allocation for parse_result array itself */
     parse_result = malloc(sizeof(char*) * (comma_count + 1));
-
     split_token = strtok(line_to_parse, ",");
 
     while(split_token != NULL)
