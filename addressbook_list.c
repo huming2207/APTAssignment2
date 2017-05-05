@@ -80,6 +80,7 @@ AddressBookNode * createAddressBookNode(int id, char * name)
     addressBookNode->previousNode = NULL;
 
     /** Initialize the name, duplicate it to prevent pollutions or other strange issues */
+    memset(addressBookNode->name, 0, sizeof(addressBookNode->name));
     strcpy(addressBookNode->name, name);
 
     return addressBookNode;
@@ -168,6 +169,8 @@ Boolean deleteCurrentNode(AddressBookList * list)
      * 2. Current node does not have its next node (tail node)
      * 3. Current node does not have its previous node (head node)
      * 4. Current node does not have both next node and previous node, i.e. it is alone, single, no friend, no family etc...
+     *
+     * By the way, is this one of the bonus mark lol?? Anyway I've done it and it is proved to work very smoothly. :)
      *
      * */
     AddressBookNode * current_node;

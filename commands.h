@@ -31,9 +31,7 @@ void commandAdd(AddressBookList * list, char * telephone);
 void commandFind(AddressBookList * list, char * name);
 void commandDelete(AddressBookList * list);
 void commandRemove(AddressBookList * list, char * telephone);
-void commandSort(
-    AddressBookList * list,
-    int sort(const void * node, const void * otherNode));
+void commandSort(AddressBookList * list, int sort(const void * node, const void * otherNode));
 int compareName(const void * node, const void * otherNode);
 int compareID(const void * node, const void * otherNode);
 void commandSave(AddressBookList * list, char * fileName);
@@ -55,5 +53,7 @@ char * parse_second_arg(AddressBookList * list, char * split_token);
 void parse_insert(AddressBookList * list, char * second_arg);
 
 char * serialize_array(AddressBookList * list, AddressBookNode * current_node, Boolean extra_space);
+
+void run_sort(AddressBookList * list, char * second_arg);
 
 #endif

@@ -299,6 +299,71 @@ void commandSort(AddressBookList * list, int sort(const void * node, const void 
     /* Sort the nodes within list in ascending order using the
      * provided sort function to compare nodes.
      */
+
+    /** Initialize a "node array" and something related... */
+    AddressBookNode ** node_array;
+    AddressBookNode * current_node;
+    int array_index;
+    array_index = 0;
+    current_node = NULL;
+    node_array = NULL;
+
+    /** Detect the dependencies are valid or not */
+    if((node_array = realloc(node_array, sizeof(*node_array) * list->size)) == NULL)
+    {
+        printf("> Reserves memory for node array failed.\n");
+        main_menu(list);
+    }
+    if(list->head == NULL)
+    {
+        printf("> Contact list hasn't been loaded successfully. Please run \"load\" and try again.\n");
+        main_menu(list);
+    }
+    else
+    {
+        current_node = list->head;
+    }
+
+    /** Put all nodes in to the array */
+    while(current_node != NULL)
+    {
+        node_array[array_index] = current_node;
+        current_node = current_node->nextNode;
+        array_index++;
+    }
+
+    /** Do the sorting process, node_array's length should be "list->size"?? */
+    qsort(node_array, (size_t)list->size, sizeof(AddressBookNode *), sort);
+
+    /** Now all things done, put back all result into the list */
+    for(array_index = 0; array_index < list->size; array_index++)
+    {
+        /**
+         * Set the new head and tail...
+         * Head node does not have previous node, tail node does not have next node.
+         * Since ANSI C / ISO C90 does not support dynamic switch-case (i.e. case must be a constant value),
+         * so here I must use if-else. Looks more ugly but it's the only choice so far.
+         * */
+        if(array_index == 0)
+        {
+            list->head = node_array[array_index];
+            node_array[array_index]->previousNode = NULL;
+            node_array[array_index]->nextNode = node_array[array_index + 1];
+        }
+        else if(array_index == (list->size - 1))
+        {
+            list->tail = node_array[array_index];
+            node_array[array_index]->nextNode = NULL;
+            node_array[array_index]->previousNode = node_array[array_index - 1];
+        }
+        else
+        {
+            node_array[array_index]->nextNode = node_array[array_index + 1];
+            node_array[array_index]->previousNode = node_array[array_index - 1];
+        }
+    }
+
+    printf("> Done sorting process.\n");
 }
 
 int compareName(const void * node, const void * otherNode)
@@ -309,7 +374,16 @@ int compareName(const void * node, const void * otherNode)
      * return 0 when the names are equal.
      * return > 0 when node name is bigger than otherNode name.
      */
-    return 0;
+    AddressBookNode * node_a;
+    AddressBookNode * node_b;
+
+    node_a = (AddressBookNode *)node;
+    node_b = (AddressBookNode *)otherNode;
+
+    fprintf(stdout, "> [DEBUG] Quicksort result: node ID %d, another node ID %d. \n",
+            node_a->id, node_b->id);
+
+    return(strcmp(node_a->name, node_b->name));
 }
 
 int compareID(const void * node, const void * otherNode)
@@ -320,7 +394,32 @@ int compareID(const void * node, const void * otherNode)
      * return 0 when the ids are equal.
      * return > 0 when node id is bigger than otherNode id.
      */
-    return 0;
+
+    int result;
+
+    const AddressBookNode * node_a;
+    const AddressBookNode * node_b;
+
+    node_a = (const AddressBookNode *)node;
+    node_b = (const AddressBookNode *)otherNode;
+
+    result = node_a->id - node_b->id;
+
+    fprintf(stdout, "> [DEBUG] Quicksort result %d, Node ID %d, another node ID %d.\n",
+           result, node_a->id, node_b->id);
+
+    if(result < 0)
+    {
+        return  -1;
+    }
+    else if(result > 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void commandSave(AddressBookList * list, char * fileName)
@@ -473,6 +572,12 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(&split_token[0], COMMAND_SAVE) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
         commandSave(list, parse_second_arg(list, split_token));
+    }
+
+    /** Parse sort, takes 1 argument */
+    else if(strcmp(&split_token[0], COMMAND_SORT) == 0 && count_space(user_input, 1, 0) == TRUE)
+    {
+        run_sort(list, parse_second_arg(list, split_token));
     }
 
     /** For the else things, it must be WRONG, return error message then... */
@@ -678,4 +783,21 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
     }
 
     return serialized_phones;
+}
+
+void run_sort(AddressBookList * list, char * second_arg)
+{
+    if(strcmp(second_arg, COMMAND_SORT_ID) == 0)
+    {
+        commandSort(list, compareID);
+    }
+    else if(strcmp(second_arg, COMMAND_SORT_NAME) == 0)
+    {
+        commandSort(list, compareName);
+    }
+    else
+    {
+        printf("> Invalid secondary sort argument \"%s\", it should be either \"name\" or \"id\".", second_arg);
+        main_menu(list);
+    }
 }

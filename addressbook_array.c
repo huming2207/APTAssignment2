@@ -75,7 +75,8 @@ Boolean addTelephone(AddressBookArray * array, char * telephone)
      */
 
     /** Allocate memory for new telephone chars */
-    char * new_phone = malloc(TELEPHONE_LENGTH);
+    char * new_phone;
+    new_phone = malloc(TELEPHONE_LENGTH);
 
     /** Detect if memory allocation works or not, if not, return FALSE */
     if(new_phone != NULL)
