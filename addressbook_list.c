@@ -41,9 +41,14 @@ void freeAddressBookList(AddressBookList * list)
      */
 
     /** Free up each node */
-    freeAddressBookNode(list->tail);
-    freeAddressBookNode(list->head);
-    freeAddressBookNode(list->current);
+    AddressBookNode * current_node;
+    current_node = list->head;
+
+    while(current_node != NULL)
+    {
+        freeAddressBookNode(current_node);
+        current_node = current_node->nextNode;
+    }
 
     /** Wipe up itself */
     safe_free(list);

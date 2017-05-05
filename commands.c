@@ -225,13 +225,10 @@ void commandInsert(AddressBookList * list, int id, char * name, char * telephone
         node->array = createAddressBookArray();
 
         /** Add a phone number into it. */
-        if(addTelephone(node->array, telephone) == TRUE && insertNode(list, node) == TRUE)
-        {
-            printf("> Insertion complete.\n");
-        }
-        else
+        if(addTelephone(node->array, telephone) == TRUE && insertNode(list, node) == FALSE)
         {
             printf("> Insertion failed for ID %d and name %s!\n", id, name);
+            main_menu(list);
         }
     }
     else
@@ -407,9 +404,6 @@ int compareID(const void * node, const void * otherNode)
 
     result = id_a - id_b;
 
-    fprintf(stdout, "> [DEBUG] Quicksort result %d, Node ID %d, another node ID %d.\n",
-           result, id_a, id_b);
-
     if(result < 0)
     {
         return  -1;
@@ -537,6 +531,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(&split_token[0], COMMAND_INSERT) == 0 && count_space(user_input, 1, 2) == TRUE)
     {
         parse_insert(list, parse_second_arg(list, split_token));
+        printf("> Insertion complete.\n");
     }
 
     /** Parse add, takes 1 argument  */
@@ -736,7 +731,6 @@ void parse_insert(AddressBookList * list, char * second_arg)
             {
                 phone_newline_remove_token = strtok(parse_result[phone_append_index], "\n");
                 addTelephone(list->current->array, phone_newline_remove_token);
-                phone_newline_remove_token = NULL;
             }
         }
     }
@@ -750,7 +744,6 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
      * */
     int phone_index;
     char * serialized_phones;
-    serialized_phones = NULL; /** Shutting up the gcc warning */
 
     /** Serialize the phone number(s), plus 1 for null space char "\0". */
     if((serialized_phones = malloc((sizeof(current_node->array->telephones) * current_node->array->size) + 1)) == NULL)
@@ -816,14 +809,12 @@ AddressBookNode ** sort_with_id(AddressBookList * list, AddressBookNode ** node_
     for(array_index = 0; array_index < array_length; array_index++)
     {
         id_array[array_index] = node_array[array_index]->id;
-        printf("> [DBEUG] Added with ID %d ...\n", id_array[array_index]);
     }
 
-    qsort(id_array, (size_t)array_length, sizeof(int*), sort);
+    qsort(id_array, (size_t)array_length, sizeof(int), sort);
 
     for(array_index = 0; array_index < array_length; array_index++)
     {
-        printf("> [DBEUG] Try finding node with ID %d ...\n", id_array[array_index]);
         node_array[array_index] = findByID(list, id_array[array_index]);
     }
 

@@ -38,8 +38,13 @@ void freeAddressBookArray(AddressBookArray * array)
      * Free's all telephones within the array and the AddressBookArray itself.
      */
 
+    int array_index;
+
     /** ...then wipe the telephone array; */
-    safe_free(array->telephones);
+    for(array_index = 0; array_index < array->size; array_index++)
+    {
+        removeTelephone(array, array->telephones[array_index]);
+    }
 
     /** ...finally, wipe the array itself. */
     safe_free(array);
