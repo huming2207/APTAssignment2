@@ -54,6 +54,12 @@ void parse_insert(AddressBookList * list, char * second_arg);
 
 char * serialize_array(AddressBookList * list, AddressBookNode * current_node, Boolean extra_space);
 
-void run_sort(AddressBookList * list, char * second_arg);
+void parse_sort(AddressBookList * list, char * second_arg);
+
+AddressBookNode ** sort_with_id(AddressBookList * list, AddressBookNode ** node_array,
+                                int array_length, int sort(const void * node, const void * otherNode));
+
+AddressBookNode ** sort_with_name(AddressBookList * list, AddressBookNode ** node_array,
+                                  int array_length, int sort(const void * node, const void * otherNode));
 
 #endif

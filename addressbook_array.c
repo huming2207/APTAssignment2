@@ -185,3 +185,4 @@ char * findTelephone(AddressBookArray * array, char * telephone)
 
     return NULL;
 }
+

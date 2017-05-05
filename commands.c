@@ -332,8 +332,16 @@ void commandSort(AddressBookList * list, int sort(const void * node, const void 
         array_index++;
     }
 
-    /** Do the sorting process, node_array's length should be "list->size"?? */
-    qsort(node_array, (size_t)list->size, sizeof(AddressBookNode *), sort);
+    if(sort == &compareName)
+    {
+        printf("> Sorting by name...\n");
+        sort_with_name(list, node_array, list->size, sort);
+    }
+    else
+    {
+        printf("> Sorting by ID...\n");
+        sort_with_id(list, node_array, list->size, sort);
+    }
 
     /** Now all things done, put back all result into the list */
     for(array_index = 0; array_index < list->size; array_index++)
@@ -374,16 +382,10 @@ int compareName(const void * node, const void * otherNode)
      * return 0 when the names are equal.
      * return > 0 when node name is bigger than otherNode name.
      */
-    AddressBookNode * node_a;
-    AddressBookNode * node_b;
+    const char * str_a = *(const char**)node;
+    const char * str_b = *(const char**)otherNode;
 
-    node_a = (AddressBookNode *)node;
-    node_b = (AddressBookNode *)otherNode;
-
-    fprintf(stdout, "> [DEBUG] Quicksort result: node ID %d, another node ID %d. \n",
-            node_a->id, node_b->id);
-
-    return(strcmp(node_a->name, node_b->name));
+    return(strcmp(str_a, str_b));
 }
 
 int compareID(const void * node, const void * otherNode)
@@ -397,16 +399,16 @@ int compareID(const void * node, const void * otherNode)
 
     int result;
 
-    const AddressBookNode * node_a;
-    const AddressBookNode * node_b;
+    int id_a;
+    int id_b;
 
-    node_a = (const AddressBookNode *)node;
-    node_b = (const AddressBookNode *)otherNode;
+    id_a = *(int *)node;
+    id_b = *(int *)otherNode;
 
-    result = node_a->id - node_b->id;
+    result = id_a - id_b;
 
     fprintf(stdout, "> [DEBUG] Quicksort result %d, Node ID %d, another node ID %d.\n",
-           result, node_a->id, node_b->id);
+           result, id_a, id_b);
 
     if(result < 0)
     {
@@ -577,7 +579,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     /** Parse sort, takes 1 argument */
     else if(strcmp(&split_token[0], COMMAND_SORT) == 0 && count_space(user_input, 1, 0) == TRUE)
     {
-        run_sort(list, parse_second_arg(list, split_token));
+        parse_sort(list, parse_second_arg(list, split_token));
     }
 
     /** For the else things, it must be WRONG, return error message then... */
@@ -785,7 +787,7 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
     return serialized_phones;
 }
 
-void run_sort(AddressBookList * list, char * second_arg)
+void parse_sort(AddressBookList * list, char * second_arg)
 {
     if(strcmp(second_arg, COMMAND_SORT_ID) == 0)
     {
@@ -800,4 +802,55 @@ void run_sort(AddressBookList * list, char * second_arg)
         printf("> Invalid secondary sort argument \"%s\", it should be either \"name\" or \"id\".", second_arg);
         main_menu(list);
     }
+}
+
+AddressBookNode ** sort_with_id(AddressBookList * list, AddressBookNode ** node_array,
+                                int array_length, int sort(const void * node, const void * otherNode))
+{
+    int * id_array;
+    int array_index;
+
+    id_array = malloc(sizeof(int) * array_length);
+
+
+    for(array_index = 0; array_index < array_length; array_index++)
+    {
+        id_array[array_index] = node_array[array_index]->id;
+        printf("> [DBEUG] Added with ID %d ...\n", id_array[array_index]);
+    }
+
+    qsort(id_array, (size_t)array_length, sizeof(int*), sort);
+
+    for(array_index = 0; array_index < array_length; array_index++)
+    {
+        printf("> [DBEUG] Try finding node with ID %d ...\n", id_array[array_index]);
+        node_array[array_index] = findByID(list, id_array[array_index]);
+    }
+
+    return node_array;
+
+}
+
+AddressBookNode ** sort_with_name(AddressBookList * list, AddressBookNode ** node_array, int array_length, int sort(const void * node, const void * otherNode))
+{
+    char ** name_array;
+    int array_index;
+
+    name_array = malloc(sizeof(*name_array) * array_length);
+
+
+    for(array_index = 0; array_index < array_length; array_index++)
+    {
+        name_array[array_index] = node_array[array_index]->name;
+    }
+
+    qsort(name_array, (size_t)array_length, sizeof(*name_array), sort);
+
+    for(array_index = 0; array_index < array_length; array_index++)
+    {
+        node_array[array_index] = findByName(list, name_array[array_index]);
+    }
+
+    return node_array;
+
 }

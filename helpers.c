@@ -133,3 +133,4 @@ void clean_user_input_buffer(char * user_input)
 {
     safe_free(user_input);
 }
+
