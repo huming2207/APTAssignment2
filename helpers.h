@@ -38,26 +38,11 @@ void readRestOfLine();
  * */
 void safe_free(void * ptr);
 
-/**
- * Save strings to file
- */
-Boolean save_file(char * str_to_save, char * path, char * method);
-
-/**
- * Append strings
- */
-char * append_string(char * old_str, char * append_str);
 
 /**
  * Get user's input string
  */
 char * get_user_input(int length);
-
-/**
- * Clean the user input string memory buffer
- * Just for in case of a memory leak, very different from readRestOfLine() function.
- */
-void clean_user_input_buffer(char * user_input);
 
 /**
  * Converting string to int

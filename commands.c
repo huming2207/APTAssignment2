@@ -91,7 +91,6 @@ void commandUnload(AddressBookList * list)
     }
 
     freeAddressBookList(list);
-
     printf("> The list is unloaded.\n");
 }
 
@@ -107,7 +106,6 @@ void commandDisplay(AddressBookList * list)
         main_menu(list);
     }
 
-    serialized_phones = NULL;
     current_node = list->head;
     phone_index = 1;
 
@@ -489,9 +487,7 @@ void commandSave(AddressBookList * list, char * fileName)
         main_menu(list);
     }
 
-    fclose_return_value = -1;
     current_node = NULL;
-    serialized_phones = NULL;
     file = NULL;
 
     /** Detect if the list is valid or not... */
@@ -625,6 +621,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(&split_token[0], COMMAND_QUIT) == 0 && count_space(user_input, 0, 0) == TRUE)
     {
         printf("> Goodbye.\n");
+        freeAddressBookList(list);
         exit(0);
     }
 
@@ -761,7 +758,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     }
 
     /** Do memory (re)allocation for parse_result array itself */
-    parse_result = malloc(sizeof(char*) * (comma_count + 1));
+    parse_result = calloc((size_t)(comma_count + 1), sizeof(char*));
     split_token = strtok(line_to_parse, ",");
 
     while(split_token != NULL)
@@ -784,7 +781,6 @@ void parse_insert(AddressBookList * list, char * second_arg)
     {
         phone_newline_remove_token = strtok(parse_result[2], "\n");
         commandInsert(list, id, contact_name, phone_newline_remove_token);
-        phone_newline_remove_token = NULL;
     }
     else
     {
@@ -815,8 +811,12 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
     int phone_index;
     char * serialized_phones;
 
-    /** Serialize the phone number(s), plus 1 for null space char "\0". */
-    if((serialized_phones = malloc((sizeof(current_node->array->telephones) * current_node->array->size) + 2)) == NULL)
+    /** Serialize the phone number(s), plus 2 for null space char "\0". */
+    if((serialized_phones =
+                calloc(1,
+                       (sizeof(current_node->array->telephones) * current_node->array->size + EXTRA_SPACES)
+                )
+       ) == NULL)
     {
         printf("> Memory allocation for phone text failed!\n");
         main_menu(list);
@@ -875,14 +875,16 @@ AddressBookNode ** sort_with_id(AddressBookList * list, AddressBookNode ** node_
 
     id_array = malloc(sizeof(int) * array_length);
 
-
+    /** Put node IDs into a integer array */
     for(array_index = 0; array_index < array_length; array_index++)
     {
         id_array[array_index] = node_array[array_index]->id;
     }
 
+    /** Do sorting */
     qsort(id_array, (size_t)array_length, sizeof(int), sort);
 
+    /** Put back the name into the nodes from name array */
     for(array_index = 0; array_index < array_length; array_index++)
     {
         node_array[array_index] = findByID(list, id_array[array_index]);
@@ -892,21 +894,24 @@ AddressBookNode ** sort_with_id(AddressBookList * list, AddressBookNode ** node_
 
 }
 
-AddressBookNode ** sort_with_name(AddressBookList * list, AddressBookNode ** node_array, int array_length, int sort(const void * node, const void * otherNode))
+AddressBookNode ** sort_with_name(AddressBookList * list, AddressBookNode ** node_array,
+                                  int array_length, int sort(const void * node, const void * otherNode))
 {
     char ** name_array;
     int array_index;
 
     name_array = malloc(sizeof(*name_array) * array_length);
 
-
+    /** Put node names into a name (string) array */
     for(array_index = 0; array_index < array_length; array_index++)
     {
         name_array[array_index] = node_array[array_index]->name;
     }
 
+    /** Do sorting */
     qsort(name_array, (size_t)array_length, sizeof(*name_array), sort);
 
+    /** Put back the name into the nodes from name array */
     for(array_index = 0; array_index < array_length; array_index++)
     {
         node_array[array_index] = findByName(list, name_array[array_index]);

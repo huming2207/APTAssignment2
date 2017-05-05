@@ -25,60 +25,6 @@ void safe_free(void * ptr)
     }
 }
 
-Boolean save_file(char * str_to_save, char * path, char * method)
-{
-    /** Initialize the file stuff */
-    FILE * file;
-    file = fopen(path, method);
-
-    /** Check if it successfully set */
-    if(file != NULL)
-    {
-        /** If fprintf return 0 then it is written successfully to file buffer */
-        if(fprintf(file, "%s", str_to_save) == 0)
-        {
-            /** try saving the file */
-            if(fclose(file) == 0)
-            {
-                fclose(file);
-                return TRUE;
-            }
-            else
-            {
-                return FALSE;
-            }
-        }
-        else
-        {
-            return FALSE;
-        }
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
-char * append_string(char * old_str, char * append_str)
-{
-    /** Initialize a new memory space for new string */
-    char * new_str = malloc(strlen(old_str) + strlen(append_str) + NULL_SPACE);
-
-    if(new_str == NULL)
-    {
-        return NULL;
-    }
-
-    /** Add a null char to it first (which will be appended to the last place later) */
-    new_str[0] = '\0';
-
-    /** Do concat now */
-    strcat(new_str, old_str);
-    strcat(new_str, append_str);
-
-    return new_str;
-}
-
 char * get_user_input(int length)
 {
     /** Initialize something (of course), cast to size_t because CLion warning sucks. */
@@ -127,10 +73,5 @@ int str_to_int(char * str)
 
         return -32767;
     }
-}
-
-void clean_user_input_buffer(char * user_input)
-{
-    safe_free(user_input);
 }
 
