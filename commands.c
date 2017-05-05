@@ -28,9 +28,6 @@ void main_menu(AddressBookList * list)
         /** Parse all those commands */
         parse_menu(user_input, list);
     }
-
-
-    clean_user_input_buffer(user_input);
 }
 
 AddressBookList * commandLoad(char * fileName)
@@ -87,6 +84,12 @@ AddressBookList * commandLoad(char * fileName)
 
 void commandUnload(AddressBookList * list)
 {
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     freeAddressBookList(list);
 
     printf("> The list is unloaded.\n");
@@ -97,6 +100,12 @@ void commandDisplay(AddressBookList * list)
     int phone_index;
     AddressBookNode * current_node;
     char * serialized_phones;
+
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
 
     serialized_phones = NULL;
     current_node = list->head;
@@ -150,6 +159,12 @@ void commandForward(AddressBookList * list, int moves)
 {
     int move_steps;
 
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(moves < 1)
     {
         main_menu(list);
@@ -185,6 +200,12 @@ void commandBackward(AddressBookList * list, int moves)
 {
     int move_steps;
 
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(moves < 1)
     {
         main_menu(list);
@@ -218,6 +239,12 @@ void commandBackward(AddressBookList * list, int moves)
 
 void commandInsert(AddressBookList * list, int id, char * name, char * telephone)
 {
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(id >= NODE_MINIMUM_ID && strlen(name) <= NAME_LENGTH)
     {
         /** Initialize a node and its array... */
@@ -240,6 +267,12 @@ void commandInsert(AddressBookList * list, int id, char * name, char * telephone
 
 void commandAdd(AddressBookList * list, char * telephone)
 {
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(addTelephone(list->current->array, telephone) == TRUE)
     {
         printf("> Phone number %s has been added.\n", telephone);
@@ -255,6 +288,12 @@ void commandFind(AddressBookList * list, char * name)
     AddressBookNode * result_node;
     result_node = findByName(list, name);
 
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(result_node != NULL)
     {
         printf("> Found %s in contact list. \n", name);
@@ -269,6 +308,12 @@ void commandFind(AddressBookList * list, char * name)
 
 void commandDelete(AddressBookList * list)
 {
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(deleteCurrentNode(list) == TRUE)
     {
         printf("> Current node has been deleted.\n");
@@ -281,6 +326,12 @@ void commandDelete(AddressBookList * list)
 
 void commandRemove(AddressBookList * list, char * telephone)
 {
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     if(removeTelephone(list->current->array, telephone) == TRUE)
     {
         printf("> Phone number %s has been removed.\n", telephone);
@@ -304,6 +355,12 @@ void commandSort(AddressBookList * list, int sort(const void * node, const void 
     array_index = 0;
     current_node = NULL;
     node_array = NULL;
+
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
 
     /** Detect the dependencies are valid or not */
     if((node_array = realloc(node_array, sizeof(*node_array) * list->size)) == NULL)
@@ -426,6 +483,12 @@ void commandSave(AddressBookList * list, char * fileName)
     char * serialized_phones;
     int fclose_return_value;
 
+    if(list == NULL)
+    {
+        printf("> List is corrupted, please reload it.\n");
+        main_menu(list);
+    }
+
     fclose_return_value = -1;
     current_node = NULL;
     serialized_phones = NULL;
@@ -483,7 +546,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     char * split_token;
 
     /** Duplicate the input string to token first, or user_input itself will be polluted by "strtok" */
-    split_token = malloc(sizeof(user_input));
+    split_token = malloc(sizeof(char) * strlen(user_input) + 1);
     strcpy(split_token, user_input);
 
     split_token = strtok(split_token, " ");
@@ -666,12 +729,19 @@ void parse_insert(AddressBookList * list, char * second_arg)
     char * split_token;
     char ** parse_result; /** Initialize a "string array" to deal with the parsing separation */
 
-    char line_to_parse[MAX_LINE_LENGTH]; /** (Force) allocate a new chunk of memory to deal with the duplication later */
+    char * line_to_parse;
     char * phone_newline_remove_token;
 
     /** Duplicate the input char to avoid pollutions and some other strange issues */
-    strcpy(line_to_parse, second_arg);
-
+    if((line_to_parse = malloc(sizeof(char) * MAX_LINE_LENGTH)) == NULL)
+    {
+        printf("> Failed to parse insertion content, memory allocation failed.\n");
+        main_menu(list);
+    }
+    else
+    {
+        strcpy(line_to_parse, second_arg);
+    }
 
     /** Count how much comma exists */
     for(comma_index = 0; comma_index < strlen(line_to_parse); comma_index++)
@@ -746,7 +816,7 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
     char * serialized_phones;
 
     /** Serialize the phone number(s), plus 1 for null space char "\0". */
-    if((serialized_phones = malloc((sizeof(current_node->array->telephones) * current_node->array->size) + 1)) == NULL)
+    if((serialized_phones = malloc((sizeof(current_node->array->telephones) * current_node->array->size) + 2)) == NULL)
     {
         printf("> Memory allocation for phone text failed!\n");
         main_menu(list);
@@ -757,7 +827,7 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
      * Sometimes the memory of this string may be duplicated with others, I have no idea about this.
      *    So just simply wipe it before using.
      * */
-    memset(serialized_phones, 0, ((sizeof(current_node->array->telephones) * current_node->array->size) + 1));
+    memset(serialized_phones, 0, ((sizeof(current_node->array->telephones) * current_node->array->size) + 2));
 
     for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
     {
