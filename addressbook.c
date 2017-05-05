@@ -28,6 +28,7 @@ int main(int argc, char ** argv)
     else
     {
         printf("> [WARNING] No file specified, please run \"load FILE_PATH\" to load a CSV file.\n");
+        init_main_menu(NULL);
     }
 
     return EXIT_SUCCESS;

@@ -757,7 +757,7 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
      * Sometimes the memory of this string may be duplicated with others, I have no idea about this.
      *    So just simply wipe it before using.
      * */
-    memset(serialized_phones, 0, sizeof(char*));
+    memset(serialized_phones, 0, ((sizeof(current_node->array->telephones) * current_node->array->size) + 1));
 
     for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
     {
