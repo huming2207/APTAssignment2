@@ -99,6 +99,7 @@ void commandDisplay(AddressBookList * list)
     int phone_index;
     AddressBookNode * current_node;
     char * serialized_phones;
+    serialized_phones = NULL;
 
     if(list == NULL)
     {
@@ -151,6 +152,8 @@ void commandDisplay(AddressBookList * list)
             "---------------------------------------------------------\n", (phone_index - 1)
     );
 
+    /** Workaround: fix memory leak */
+    safe_free(serialized_phones);
 }
 
 void commandForward(AddressBookList * list, int moves)
@@ -530,6 +533,7 @@ void commandSave(AddressBookList * list, char * fileName)
     {
         printf("> File %s has been created and saved successfully!\n", fileName);
     }
+
 }
 
 
@@ -750,7 +754,6 @@ void parse_insert(AddressBookList * list, char * second_arg)
     {
         if(line_to_parse[comma_index] == ',')
         {
-
             comma_count++;
         }
     }
@@ -762,7 +765,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
         main_menu(list);
     }
 
-    /** Do memory (re)allocation for parse_result array itself */
+    /** Do memory allocation for parse_result array itself */
     parse_result = calloc((size_t)(comma_count + 1), sizeof(char*));
     split_token = strtok(line_to_parse, ",");
 
@@ -805,6 +808,10 @@ void parse_insert(AddressBookList * list, char * second_arg)
             }
         }
     }
+
+    /** Workaround to deal with the critical memory leak... */
+    safe_free(parse_result);
+    safe_free(line_to_parse);
 }
 
 char * serialize_array(AddressBookList * list, AddressBookNode * current_node, Boolean extra_space)
@@ -816,23 +823,14 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
     int phone_index;
     char * serialized_phones;
 
-    /** Serialize the phone number(s), plus 2 for null space char "\0". */
+    /** Serialize the phone number(s), init a cleaned memory with telephone length * size */
     if((serialized_phones =
-                calloc(1,
-                       (sizeof(current_node->array->telephones) * current_node->array->size + EXTRA_SPACES)
-                )
+                calloc((size_t)current_node->array->size, TELEPHONE_LENGTH)
        ) == NULL)
     {
         printf("> Memory allocation for phone text failed!\n");
         main_menu(list);
     }
-
-    /**
-     * Workaround: force clean up the string memory chunk before serialization
-     * Sometimes the memory of this string may be duplicated with others, I have no idea about this.
-     *    So just simply wipe it before using.
-     * */
-    memset(serialized_phones, 0, ((sizeof(current_node->array->telephones) * current_node->array->size) + 2));
 
     for(phone_index = 0; phone_index < current_node->array->size; phone_index++)
     {
