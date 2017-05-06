@@ -621,7 +621,12 @@ void parse_menu(char * user_input, AddressBookList * list)
     else if(strcmp(&split_token[0], COMMAND_QUIT) == 0 && count_space(user_input, 0, 0) == TRUE)
     {
         printf("> Goodbye.\n");
-        freeAddressBookList(list);
+
+        if(list != NULL)
+        {
+            freeAddressBookList(list);
+        }
+
         exit(0);
     }
 
