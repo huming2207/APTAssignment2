@@ -145,15 +145,15 @@ void commandDisplay(AddressBookList * list)
         current_node = current_node->nextNode;
     }
 
+    /** Workaround: fix memory leak */
+    safe_free(serialized_phones);
+
     /** Print footer of the list */
     printf(
             "---------------------------------------------------------\n"
             "| Total phone book entries: %d \t\t\t|\n"
             "---------------------------------------------------------\n", (phone_index - 1)
     );
-
-    /** Workaround: fix memory leak */
-    safe_free(serialized_phones);
 }
 
 void commandForward(AddressBookList * list, int moves)
