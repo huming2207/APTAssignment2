@@ -131,12 +131,12 @@ void commandDisplay(AddressBookList * list)
 
         if(current_node == list->current)
         {
-            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\t|\n",
+            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\n",
                    "CR", phone_index, current_node->id, current_node->name, serialized_phones);
         }
         else
         {
-            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\t|\n",
+            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\n",
                    "  ", phone_index, current_node->id, current_node->name, serialized_phones);
         }
 
@@ -385,14 +385,32 @@ void commandSort(AddressBookList * list, int sort(const void * node, const void 
     /** Do the sorting process, node_array's length should be "list->size"?? */
     qsort(node_array, (size_t)list->size, sizeof(AddressBookNode *), sort);
 
-    /** Soft reset list, i.e. didn't directly free the list because it will wipe all nodes by pointers */
-    list->tail = list->current = list->head = NULL;
-    list->size = 0;
-
     /** Now all things done, put back all result into the list */
     for(array_index = 0; array_index < list->size; array_index++)
     {
-        insertNode(list, node_array[array_index]);
+        /**
+         * Set the new head and tail...
+         * Head node does not have previous node, tail node does not have next node.
+         * Since ANSI C / ISO C90 does not support dynamic switch-case (i.e. case must be a constant value),
+         * so here I must use if-else. Looks more ugly but it's the only choice so far.
+         * */
+        if(array_index == 0)
+        {
+            list->head = node_array[array_index];
+            node_array[array_index]->previousNode = NULL;
+            node_array[array_index]->nextNode = node_array[array_index + 1];
+        }
+        else if(array_index == (list->size - 1))
+        {
+            list->tail = node_array[array_index];
+            node_array[array_index]->nextNode = NULL;
+            node_array[array_index]->previousNode = node_array[array_index - 1];
+        }
+        else
+        {
+            node_array[array_index]->nextNode = node_array[array_index + 1];
+            node_array[array_index]->previousNode = node_array[array_index - 1];
+        }
     }
 
     list->head = node_array[0];
