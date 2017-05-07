@@ -413,9 +413,6 @@ void commandSort(AddressBookList * list, int sort(const void * node, const void 
         }
     }
 
-    list->head = node_array[0];
-    list->tail = node_array[array_index];
-
     /** Clean up the node array itself (but not the node) */
     safe_free(node_array);
 
