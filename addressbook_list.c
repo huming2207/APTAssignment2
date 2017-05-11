@@ -50,6 +50,7 @@ void freeAddressBookList(AddressBookList * list)
         current_node = current_node->nextNode;
     }
 
+    list->size = 0;
 
     /** Wipe up itself */
     safe_free(list);

@@ -91,6 +91,7 @@ void commandUnload(AddressBookList * list)
     }
 
     freeAddressBookList(list);
+
     printf("> The list is unloaded.\n");
 }
 
@@ -103,7 +104,7 @@ void commandDisplay(AddressBookList * list)
 
     if(list == NULL)
     {
-        printf("> List is corrupted, please reload it.\n");
+        printf("> List is corrupted or empty, please reload it.\n");
         main_menu(list);
     }
 
@@ -118,25 +119,25 @@ void commandDisplay(AddressBookList * list)
 
     /** Print header of the list */
     printf(
-            "\n\n---------------------------------------------------------\n"
-            "|\tPos\t|\tSerial\t|\tID\t|\tName\t|\tTelephone\t|\n"
-            "---------------------------------------------------------\n"
+            "\n\n------------------------------------------------------------------------------------\n"
+            "| Pos |\tSerial\t|\tID\t|\tName\t| Telephone\t\t\t|\n"
+            "------------------------------------------------------------------------------------\n"
     );
 
     /** Print the main content of the list */
 
-    while(current_node != NULL)
+    while(current_node != NULL && list->size != 0)
     {
         serialized_phones = serialize_array(list, current_node, TRUE);
 
         if(current_node == list->current)
         {
-            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\n",
+            printf("| %s |\t%d\t|\t%d\t|\t%s\t| %s\n",
                    "CR", phone_index, current_node->id, current_node->name, serialized_phones);
         }
         else
         {
-            printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%s\n",
+            printf("| %s |\t%d\t|\t%d\t|\t%s\t| %s\n",
                    "  ", phone_index, current_node->id, current_node->name, serialized_phones);
         }
 
@@ -150,9 +151,9 @@ void commandDisplay(AddressBookList * list)
 
     /** Print footer of the list */
     printf(
-            "---------------------------------------------------------\n"
-            "| Total phone book entries: %d \t\t\t|\n"
-            "---------------------------------------------------------\n", (phone_index - 1)
+            "------------------------------------------------------------------------------------\n"
+            "| Total phone book entries: %d \t\t\t\t\t\t|\n"
+            "------------------------------------------------------------------------------------\n", (phone_index - 1)
     );
 }
 
