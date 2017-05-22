@@ -535,8 +535,8 @@ void parse_menu(char * user_input, AddressBookList * list)
     char * split_token;
 
     /** Duplicate the input string to token first, or user_input itself will be polluted by "strtok" */
-    split_token = malloc(sizeof(char) * strlen(user_input) + 1);
-    strcpy(split_token, user_input);
+    split_token = strdup(user_input);
+
 
     split_token = strtok(split_token, " ");
 
@@ -728,15 +728,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     char * phone_newline_remove_token;
 
     /** Duplicate the input char to avoid pollutions and some other strange issues */
-    if((line_to_parse = malloc(sizeof(char) * MAX_LINE_LENGTH)) == NULL)
-    {
-        printf("> Failed to parse insertion content, memory allocation failed.\n");
-        main_menu(list);
-    }
-    else
-    {
-        strcpy(line_to_parse, second_arg);
-    }
+    line_to_parse = strdup(second_arg);
 
     /** Count how much comma exists */
     for(comma_index = 0; comma_index < strlen(line_to_parse); comma_index++)

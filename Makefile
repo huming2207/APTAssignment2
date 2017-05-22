@@ -12,11 +12,12 @@ clean:
 debug:
 	gcc $(FLAGS) -g -o $(PROGRAM) $(SOURCES)
 
+# Run "brew install gcc" to obtain gcc toolchain for macOS
 mac-gcc:
-	gcc-6 $(FLAGS) -o  $(PROGRAM) $(SOURCES)
+	gcc-7 $(FLAGS) -o  $(PROGRAM) $(SOURCES)
 
 mac-gcc-debug:
-	gcc-6 $(FLAGS) -g -o  $(PROGRAM) $(SOURCES)
+	gcc-7 $(FLAGS) -g -o  $(PROGRAM) $(SOURCES)
 
 archive:
 	zip $(USER)-a2 $(SOURCES) $(HEADERS) Makefile
