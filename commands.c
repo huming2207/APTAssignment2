@@ -103,11 +103,8 @@ void commandDisplay(AddressBookList * list)
     char * serialized_phones;
     serialized_phones = NULL;
 
-    if(list == NULL)
-    {
-        printf("> List is corrupted or empty, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, FALSE);
 
     current_node = list->head;
     phone_index = 1;
@@ -162,11 +159,8 @@ void commandForward(AddressBookList * list, int moves)
 {
     int move_steps;
 
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, TRUE);
 
     if(moves < 1)
     {
@@ -203,11 +197,8 @@ void commandBackward(AddressBookList * list, int moves)
 {
     int move_steps;
 
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, TRUE);
 
     if(moves < 1)
     {
@@ -242,11 +233,7 @@ void commandBackward(AddressBookList * list, int moves)
 
 void commandInsert(AddressBookList * list, int id, char * name, char * telephone)
 {
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    reset_if_null_list(list, FALSE);
 
     if(id >= NODE_MINIMUM_ID && strlen(name) <= NAME_LENGTH)
     {
@@ -270,11 +257,8 @@ void commandInsert(AddressBookList * list, int id, char * name, char * telephone
 
 void commandAdd(AddressBookList * list, char * telephone)
 {
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, FALSE);
 
     if(addTelephone(list->current->array, telephone) == TRUE)
     {
@@ -291,11 +275,8 @@ void commandFind(AddressBookList * list, char * name)
     AddressBookNode * result_node;
     result_node = findByName(list, name);
 
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, TRUE);
 
     if(result_node != NULL)
     {
@@ -311,11 +292,8 @@ void commandFind(AddressBookList * list, char * name)
 
 void commandDelete(AddressBookList * list)
 {
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, TRUE);
 
     if(deleteCurrentNode(list) == TRUE)
     {
@@ -329,11 +307,8 @@ void commandDelete(AddressBookList * list)
 
 void commandRemove(AddressBookList * list, char * telephone)
 {
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, TRUE);
 
     if(removeTelephone(list->current->array, telephone) == TRUE)
     {
@@ -359,11 +334,8 @@ void commandSort(AddressBookList * list, int sort(const void * node, const void 
     current_node = NULL;
     node_array = NULL;
 
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
+    /** Reset to main menu if the list is null */
+    reset_if_null_list(list, TRUE);
 
     /** Detect the dependencies are valid or not */
     if((node_array = realloc(node_array, sizeof(*node_array) * list->size)) == NULL)
@@ -473,18 +445,13 @@ void commandSave(AddressBookList * list, char * fileName)
     AddressBookNode * current_node;
     char * serialized_phones;
     int fclose_return_value;
-
-    if(list == NULL)
-    {
-        printf("> List is corrupted, please reload it.\n");
-        main_menu(list);
-    }
-
     current_node = NULL;
     file = NULL;
 
+    reset_if_null_list(list, TRUE);
+
     /** Detect if the list is valid or not... */
-    if(list != NULL && list->head != NULL)
+    if(list->size != 0 && list->head != NULL)
     {
         printf("> Opening file at %s...\n", fileName);
         current_node = list->head;
@@ -506,6 +473,9 @@ void commandSave(AddressBookList * list, char * fileName)
             serialized_phones = serialize_array(list, current_node, FALSE);
             fprintf(file, ",%s\n", serialized_phones);
         }
+
+        /** Flush on every time it writes a line to prevent data loss */
+        fflush(file);
 
         /** Process to the next one... */
         current_node = current_node->nextNode;
@@ -547,11 +517,8 @@ void parse_menu(char * user_input, AddressBookList * list)
         /** Parse the second token (file path) and initialize the list */
         list = commandLoad(parse_second_arg(list, split_token));
 
-        if(list == NULL)
-        {
-            /** No further error output is necessary, just reset it. */
-            main_menu(list);
-        }
+        /** Reset to main menu if the list is null */
+        reset_if_null_list(list, TRUE);
     }
 
     /** Parse unload, no argument is allowed */
@@ -729,7 +696,7 @@ void parse_insert(AddressBookList * list, char * second_arg)
     char * phone_newline_remove_token;
 
     /** Duplicate the input char to avoid pollutions and some other strange issues */
-    if((line_to_parse = malloc(sizeof(char) * MAX_LINE_LENGTH)) == NULL)
+    if((line_to_parse = calloc(MAX_LINE_LENGTH, sizeof(char))) == NULL)
     {
         printf("> Failed to parse insertion content, memory allocation failed.\n");
         main_menu(list);
@@ -756,7 +723,11 @@ void parse_insert(AddressBookList * list, char * second_arg)
     }
 
     /** Do memory allocation for parse_result array itself */
-    parse_result = calloc((size_t)(comma_count + 1), sizeof(char*));
+    if((parse_result = calloc((size_t)(comma_count + 1), sizeof(char*))) == NULL)
+    {
+        printf("[ERROR] malloc for parse_result failed!\n");
+    }
+
     split_token = strtok(line_to_parse, ",");
 
     while(split_token != NULL)
@@ -857,5 +828,25 @@ void parse_sort(AddressBookList * list, char * second_arg)
     {
         printf("> Invalid secondary sort argument \"%s\", it should be either \"name\" or \"id\".", second_arg);
         main_menu(list);
+    }
+}
+
+void reset_if_null_list(AddressBookList * list, Boolean validate_length)
+{
+    if(validate_length == TRUE)
+    {
+        if(list == NULL || list->size == 0)
+        {
+            printf("> List is corrupted or empty, please reload it.\n");
+            main_menu(list);
+        }
+    }
+    else
+    {
+        if(list == NULL)
+        {
+            printf("> List is not initialized. Please retry load command.\n");
+            main_menu(list);
+        }
     }
 }

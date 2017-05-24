@@ -56,4 +56,6 @@ char * serialize_array(AddressBookList * list, AddressBookNode * current_node, B
 
 void parse_sort(AddressBookList * list, char * second_arg);
 
+void reset_if_null_list(AddressBookList * list, Boolean validate_length);
+
 #endif
