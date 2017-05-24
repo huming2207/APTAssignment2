@@ -535,7 +535,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     char * split_token;
 
     /** Duplicate the input string to token first, or user_input itself will be polluted by "strtok" */
-    split_token = malloc(sizeof(char) * strlen(user_input) + 1);
+    split_token = calloc(strlen(user_input) + 1, sizeof(char));
     strcpy(split_token, user_input);
 
     split_token = strtok(split_token, " ");
@@ -615,7 +615,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     {
         printf("> Goodbye.\n");
 
-        if(list != NULL)
+        if(list->size != 0)
         {
             freeAddressBookList(list);
         }
