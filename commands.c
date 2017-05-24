@@ -84,15 +84,16 @@ AddressBookList * commandLoad(char * fileName)
 
 void commandUnload(AddressBookList * list)
 {
-    if(list == NULL)
+    if(list->size == 0)
     {
-        printf("> List is corrupted, please reload it.\n");
+        printf("> List is empty. Probably it has already been freed.\n");
         main_menu(list);
     }
-
-    freeAddressBookList(list);
-
-    printf("> The list is unloaded.\n");
+    else
+    {
+        freeAddressBookList(list);
+        printf("> The list is unloaded.\n");
+    }
 }
 
 void commandDisplay(AddressBookList * list)
@@ -535,7 +536,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     char * split_token;
 
     /** Duplicate the input string to token first, or user_input itself will be polluted by "strtok" */
-    split_token = calloc(strlen(user_input) + 1, sizeof(char));
+    split_token = calloc(strlen(user_input) + NULL_SPACE, sizeof(char));
     strcpy(split_token, user_input);
 
     split_token = strtok(split_token, " ");
