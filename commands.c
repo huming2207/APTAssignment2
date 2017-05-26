@@ -84,16 +84,10 @@ AddressBookList * commandLoad(char * fileName)
 
 void commandUnload(AddressBookList * list)
 {
-    if(list->size == 0)
-    {
-        printf("> List is empty. Probably it has already been freed.\n");
-        main_menu(list);
-    }
-    else
-    {
-        freeAddressBookList(list);
-        printf("> The list is unloaded.\n");
-    }
+    reset_if_null_list(list, TRUE);
+
+    freeAddressBookList(list);
+    printf("> The list is unloaded.\n");
 }
 
 void commandDisplay(AddressBookList * list)
