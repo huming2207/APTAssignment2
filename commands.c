@@ -577,7 +577,7 @@ void parse_menu(char * user_input, AddressBookList * list)
     {
         printf("> Goodbye.\n");
 
-        if(list != NULL || list->size != 0)
+        if(list != NULL && list->size != 0)
         {
             freeAddressBookList(list);
         }
