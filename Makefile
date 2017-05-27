@@ -5,6 +5,7 @@ BIN     = AddressBook
 SOURCES = $(wildcard *.c)
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS = $(wildcard *.h)
+CSV     = $(wildcard *.txt)
 
 
 # Force using GCC in macOS because clang toolchain does not recognize the "-ansi" flag and throws annoying warnings
@@ -37,4 +38,4 @@ clean:
 	rm -f $(OBJECTS) $(BIN) *.zip
 
 archive:
-	zip $(USER)-a2 $(SOURCES) $(HEADERS) Makefile
+	zip $(USER)-a2 $(SOURCES) $(HEADERS) $(CSV) Makefile

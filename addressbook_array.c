@@ -18,18 +18,18 @@ AddressBookArray * createAddressBookArray()
      */
 
     /** Allocate a memory area */
-    AddressBookArray * addressBookArray;
+    AddressBookArray * array;
 
-    if((addressBookArray = malloc(sizeof(*addressBookArray))) == NULL)
+    if((array = malloc(sizeof(*array))) == NULL)
     {
         printf("> Memory allocation for Addressbook array failed!\n");
     }
 
     /** Assign some empty stuff */
-    addressBookArray->telephones = NULL;
-    addressBookArray->size = 0;
+    array->telephones = NULL;
+    array->size = 0;
 
-    return addressBookArray;
+    return array;
 }
 
 void freeAddressBookArray(AddressBookArray * array)

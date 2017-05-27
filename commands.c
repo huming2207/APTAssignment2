@@ -124,13 +124,15 @@ void commandDisplay(AddressBookList * list)
 
         if(current_node == list->current)
         {
-            printf("| %s |\t%d\t|\t%d\t|\t%s\t| %s\n",
-                   "CR", phone_index, current_node->id, current_node->name, serialized_phones);
+            printf("| %s |\t%d\t|\t%d\t|\t%*s\t| %s\n",
+                   "CR", phone_index, current_node->id,
+                   (int)strlen(current_node->name), current_node->name, serialized_phones);
         }
         else
         {
-            printf("| %s |\t%d\t|\t%d\t|\t%s\t| %s\n",
-                   "  ", phone_index, current_node->id, current_node->name, serialized_phones);
+            printf("| %s |\t%d\t|\t%d\t|\t%*s\t| %s\n",
+                   "  ", phone_index, current_node->id,
+                   (int)strlen(current_node->name), current_node->name, serialized_phones);
         }
 
         /** Loop to next node */
