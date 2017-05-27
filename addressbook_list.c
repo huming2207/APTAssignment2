@@ -42,12 +42,14 @@ void freeAddressBookList(AddressBookList * list)
 
     /** Free up each node */
     AddressBookNode * current_node;
+    AddressBookNode * next_node;
     current_node = list->head;
 
     while(current_node != NULL)
     {
+        next_node = current_node->nextNode;
         freeAddressBookNode(current_node);
-        current_node = current_node->nextNode;
+        current_node = next_node;
     }
 
     list->size = 0;
@@ -73,24 +75,24 @@ AddressBookNode * createAddressBookNode(int id, char * name)
     */
 
     /** Create an address book node */
-    AddressBookNode * addressBookNode;
-    if((addressBookNode = malloc(sizeof(*addressBookNode))) == NULL)
+    AddressBookNode * node;
+    if((node = malloc(sizeof(*node))) == NULL)
     {
         printf("Memory allocation for Addressbook node failed!\n");
         return NULL;
     }
 
     /** Assign some values to it */
-    addressBookNode->array = NULL;
-    addressBookNode->id = id;
-    addressBookNode->nextNode = NULL;
-    addressBookNode->previousNode = NULL;
+    node->array = NULL;
+    node->id = id;
+    node->nextNode = NULL;
+    node->previousNode = NULL;
 
     /** Initialize the name, duplicate it to prevent pollutions or other strange issues */
-    memset(addressBookNode->name, 0, sizeof(addressBookNode->name));
-    strcpy(addressBookNode->name, name);
+    memset(node->name, 0, sizeof(node->name));
+    strcpy(node->name, name);
 
-    return addressBookNode;
+    return node;
 }
 
 void freeAddressBookNode(AddressBookNode * node)
@@ -131,14 +133,21 @@ Boolean insertNode(AddressBookList * list, AddressBookNode * node)
         /** Finalize previous assigns & merges */
         if(previous_current != NULL)
         {
+            /** Set previous current node's next node */
             previous_current_next = previous_current->nextNode;
 
+            /** Set the new node's next node and original current node's next node's previous node */
+            node->nextNode = previous_current_next;
+
+            /** Set previous current node's next node */
             previous_current->nextNode = node;
 
+            /** If previous node's next node is null, then skip */
             if(previous_current_next != NULL)
             {
                 previous_current_next->previousNode = node;
             }
+
         }
 
         /** Set the amount, plus one to append */

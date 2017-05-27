@@ -152,13 +152,17 @@ Boolean removeTelephone(AddressBookArray * array, char * telephone)
         /** Shrink the whole telephone list index */
         array->size--;
 
-        /** Shrink the whole telephone list */
-        array->telephones = realloc(array->telephones, sizeof(*array->telephones) * (array->size));
-
-        /** If the array size is 0 (empty array), do the whole removal of the array, dispose it. */
+        /** If the array size is 0 (empty array), do the whole removal of the array, then terminate the process. */
         if(array->size == 0)
         {
             safe_free(array->telephones);
+            return TRUE;
+        }
+
+        /** Shrink the whole telephone list */
+        if((array->telephones = realloc(array->telephones, sizeof(*array->telephones) * (array->size))) == NULL)
+        {
+            return FALSE;
         }
 
         return TRUE;
